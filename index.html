@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E5A3A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Tasas">
+<title>Tasas · ¿Cómo pago?</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230E5A3A'/%3E%3Ctext x='32' y='43' font-size='34' text-anchor='middle' fill='%23FFD84D' font-family='sans-serif' font-weight='700'%3EBs%3C/text%3E%3C/svg%3E">
+<style>
+  :root{
+    --green:#0E5A3A; --green-deep:#083D27; --mark:#FFD84D;
+    --paper:#FFFFFF; --ink:#141A17; --mute:#5E6963; --line:#D9DED9; --wash:#EEF3EF;
+    --bad:#B3261E;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--wash);color:var(--ink);
+    font-family:-apple-system,"SF Pro Text",system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    font-variant-numeric:tabular-nums;-webkit-text-size-adjust:100%}
+  body{min-height:100dvh;display:flex;flex-direction:column}
+  button,input,select{font:inherit;color:inherit}
+  input[type=number]{-moz-appearance:textfield}
+  input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  :focus-visible{outline:3px solid var(--mark);outline-offset:2px}
+
+  /* Header / rates strip */
+  header{background:var(--green);color:#fff;padding:calc(env(safe-area-inset-top) + 14px) 16px 14px}
+  .h-row{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+  h1{margin:0;font-size:18px;font-weight:600;letter-spacing:-.01em}
+  .stamp{font-size:12px;opacity:.8}
+  .rates{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+  .rate{background:rgba(255,255,255,.08);border-radius:10px;padding:8px 10px;text-align:left;border:1px solid transparent}
+  .rate.manual{border-color:rgba(255,216,77,.7)}
+  .rate small{display:block;font-size:11px;opacity:.85}
+  .rate b{display:block;font-size:17px;font-weight:600;margin-top:2px;white-space:nowrap}
+  .rate i{display:block;font-size:10px;font-style:normal;opacity:.7;margin-top:2px}
+  .h-actions{display:flex;gap:8px;margin-top:10px}
+  .h-actions button{flex:1;background:transparent;border:1px solid rgba(255,255,255,.45);color:#fff;border-radius:9px;padding:9px;font-size:14px}
+  .h-actions button.primary{background:var(--mark);color:var(--green-deep);border-color:var(--mark);font-weight:600}
+  .h-actions button:disabled{opacity:.6}
+  .status{font-size:12px;margin-top:8px;opacity:.9;min-height:1em}
+
+  /* Rate editor */
+  .editor{display:none;background:var(--green-deep);color:#fff;padding:12px 16px 16px}
+  .editor.open{display:block}
+  .editor label{display:block;font-size:13px;margin:10px 0 4px}
+  .editor .in{display:flex;align-items:center;background:#fff;color:var(--ink);border-radius:9px;overflow:hidden}
+  .editor .in input{flex:1;border:0;padding:10px 12px;font-size:18px;min-width:0;background:transparent}
+  .editor .in span{padding:0 12px;color:var(--mute);font-size:13px}
+  .editor .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .editor .row.three{grid-template-columns:1fr 1fr 1fr}
+  .editor .hint{font-size:12px;opacity:.75;margin-top:10px;line-height:1.4}
+
+  main{flex:1;padding:16px 16px calc(84px + env(safe-area-inset-bottom))}
+  section{display:none}
+  section.active{display:block}
+
+  /* Converter */
+  .conv{background:var(--paper);border-radius:14px;border:1px solid var(--line);overflow:hidden}
+  .field{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line)}
+  .field:last-child{border-bottom:0}
+  .field .tag{width:74px;flex:none}
+  .field .tag b{display:block;font-size:15px;font-weight:600}
+  .field .tag small{display:block;font-size:11px;color:var(--mute)}
+  .field input{flex:1;min-width:0;border:0;background:transparent;font-size:26px;font-weight:500;text-align:right;padding:0;letter-spacing:-.01em}
+  .field input.src{color:var(--green)}
+  .field .x{flex:none;border:0;background:var(--wash);border-radius:50%;width:30px;height:30px;color:var(--mute);font-size:16px;line-height:1}
+  .diff{margin-top:12px;background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:12px 16px;font-size:14px;line-height:1.5}
+  .diff b{color:var(--green)}
+
+  /* Payment */
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:12px}
+  .card h2{margin:0 0 10px;font-size:15px;font-weight:600}
+  .price-row{display:flex;gap:10px}
+  .price-row .in{flex:1;display:flex;align-items:center;background:var(--wash);border-radius:10px;overflow:hidden}
+  .price-row .in span{padding:0 0 0 12px;color:var(--mute);font-size:13px;flex:none}
+  .price-row .in input{flex:1;min-width:0;border:0;background:transparent;font-size:22px;font-weight:500;padding:10px 12px;text-align:right}
+  .price-row .in input.src{color:var(--green)}
+  .opt-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+  .opt{display:flex;flex-direction:column;gap:4px}
+  .opt label{font-size:12px;color:var(--mute)}
+  .opt .in{display:flex;align-items:center;background:var(--wash);border-radius:10px}
+  .opt .in input{flex:1;min-width:0;border:0;background:transparent;font-size:18px;padding:9px 10px;text-align:right}
+  .opt .in span{padding-right:10px;color:var(--mute);font-size:13px}
+  .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+  .chips button{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:6px 11px;font-size:13px}
+  .chips button.on{background:var(--green);border-color:var(--green);color:#fff}
+  .toggle{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;margin-top:10px;color:var(--mute)}
+  .toggle input{width:20px;height:20px;accent-color:var(--green)}
+
+  .results{display:flex;flex-direction:column;gap:10px}
+  .res{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:14px 16px;position:relative}
+  .res.best{border-color:var(--green);box-shadow:inset 0 0 0 1px var(--green)}
+  .res.best::before{content:"Mejor opción";position:absolute;top:-10px;left:14px;background:var(--mark);color:var(--green-deep);font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px}
+  .res .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+  .res .name{font-size:14px;font-weight:600}
+  .res .cost{font-size:24px;font-weight:600;letter-spacing:-.01em;white-space:nowrap}
+  .res .cost small{font-size:13px;font-weight:500;color:var(--mute)}
+  .res .sub{font-size:12px;color:var(--mute);margin-top:4px;line-height:1.45}
+  .res .delta{font-size:13px;margin-top:6px}
+  .res .delta.more{color:var(--bad)}
+  .res .delta.less{color:var(--green)}
+  .breakeven{margin-top:12px;font-size:13px;color:var(--mute);line-height:1.5;padding:0 4px}
+  .breakeven b{color:var(--ink)}
+
+  /* Tabs */
+  nav{position:fixed;left:0;right:0;bottom:0;background:var(--paper);border-top:1px solid var(--line);
+    display:grid;grid-template-columns:1fr 1fr;padding:6px 10px calc(6px + env(safe-area-inset-bottom))}
+  nav button{border:0;background:transparent;padding:10px 6px;border-radius:10px;font-size:14px;color:var(--mute)}
+  nav button.on{color:var(--green);font-weight:600;background:var(--wash)}
+  @media (prefers-reduced-motion:no-preference){.res{transition:border-color .15s}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="h-row">
+    <h1>Tasas de hoy</h1>
+    <span class="stamp" id="stamp">sin actualizar</span>
+  </div>
+  <div class="rates">
+    <button class="rate" id="r-usd" onclick="openEditor()"><small>Dólar BCV</small><b>—</b><i></i></button>
+    <button class="rate" id="r-eur" onclick="openEditor()"><small>Euro BCV</small><b>—</b><i></i></button>
+    <button class="rate" id="r-usdt" onclick="openEditor()"><small>USDT Binance P2P</small><b>—</b><i></i></button>
+  </div>
+  <div class="h-actions">
+    <button class="primary" id="btn-fetch" onclick="fetchRates()">Actualizar tasas</button>
+    <button onclick="openEditor()">Editar a mano</button>
+  </div>
+  <div class="status" id="status"></div>
+</header>
+
+<div class="editor" id="editor">
+  <div class="row three">
+    <div><label for="e-usd">Dólar BCV</label><div class="in"><input id="e-usd" type="number" inputmode="decimal" step="any"><span>Bs</span></div></div>
+    <div><label for="e-eur">Euro BCV</label><div class="in"><input id="e-eur" type="number" inputmode="decimal" step="any"><span>Bs</span></div></div>
+    <div><label for="e-usdt">USDT P2P</label><div class="in"><input id="e-usdt" type="number" inputmode="decimal" step="any"><span>Bs</span></div></div>
+  </div>
+  <div class="row" style="margin-top:4px">
+    <div><label for="e-igtf">IGTF (pago en divisas)</label><div class="in"><input id="e-igtf" type="number" inputmode="decimal" step="any"><span>%</span></div></div>
+    <div><label for="e-spread">Costo de pasar USDT a efectivo</label><div class="in"><input id="e-spread" type="number" inputmode="decimal" step="any"><span>%</span></div></div>
+  </div>
+  <div class="hint">Las tasas que escribas se guardan en este teléfono y se usan hasta que las cambies o actualices. Para USDT, copia el precio de venta que veas en Binance P2P.</div>
+  <div class="h-actions">
+    <button class="primary" onclick="saveEditor()">Guardar</button>
+    <button onclick="closeEditor()">Cerrar</button>
+  </div>
+</div>
+
+<main>
+  <!-- Converter -->
+  <section id="tab-conv" class="active">
+    <div class="conv">
+      <div class="field">
+        <div class="tag"><b>Bs</b><small>bolívares</small></div>
+        <input id="c-bs" type="number" inputmode="decimal" step="any" placeholder="0" data-cur="bs">
+        <button class="x" onclick="clearConv()" aria-label="Borrar">×</button>
+      </div>
+      <div class="field">
+        <div class="tag"><b>$ BCV</b><small>dólar oficial</small></div>
+        <input id="c-usd" type="number" inputmode="decimal" step="any" placeholder="0" data-cur="usd">
+      </div>
+      <div class="field">
+        <div class="tag"><b>€ BCV</b><small>euro oficial</small></div>
+        <input id="c-eur" type="number" inputmode="decimal" step="any" placeholder="0" data-cur="eur">
+      </div>
+      <div class="field">
+        <div class="tag"><b>USDT</b><small>Binance P2P</small></div>
+        <input id="c-usdt" type="number" inputmode="decimal" step="any" placeholder="0" data-cur="usdt">
+      </div>
+    </div>
+    <div class="diff" id="conv-diff"></div>
+  </section>
+
+  <!-- Payment -->
+  <section id="tab-pay">
+    <div class="card">
+      <h2>Precio del producto</h2>
+      <div class="price-row">
+        <div class="in"><span>$</span><input id="p-usd" type="number" inputmode="decimal" step="any" placeholder="0" data-cur="usd"></div>
+        <div class="in"><span>Bs</span><input id="p-bs" type="number" inputmode="decimal" step="any" placeholder="0" data-cur="bs"></div>
+      </div>
+      <div class="toggle" style="margin-top:8px"><span>El precio en $ se convierte a Bs con la tasa BCV, como marcan las tiendas.</span></div>
+    </div>
+
+    <div class="card">
+      <h2>Si pagas en efectivo ($)</h2>
+      <div class="opt-grid">
+        <div class="opt"><label for="p-disc">Descuento que ofrece la tienda</label>
+          <div class="in"><input id="p-disc" type="number" inputmode="decimal" step="any" value="20"><span>%</span></div></div>
+        <div class="opt"><label for="p-igtf">IGTF</label>
+          <div class="in"><input id="p-igtf" type="number" inputmode="decimal" step="any"><span>%</span></div></div>
+      </div>
+      <div class="chips" id="chips">
+        <button data-d="0">0%</button><button data-d="10">10%</button><button data-d="15">15%</button>
+        <button data-d="20" class="on">20%</button><button data-d="25">25%</button><button data-d="30">30%</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Si pagas en USDT o Zelle directo</h2>
+      <div class="opt-grid">
+        <div class="opt"><label for="p-disc2">Descuento</label>
+          <div class="in"><input id="p-disc2" type="number" inputmode="decimal" step="any" value="0"><span>%</span></div></div>
+        <div class="opt"><label>Cobran IGTF</label>
+          <div class="in" style="justify-content:flex-end;padding:9px 10px"><input id="p-igtf2" type="checkbox" checked style="width:20px;height:20px;accent-color:var(--green)"></div></div>
+      </div>
+      <div class="toggle"><label for="p-show2">Mostrar esta opción</label><input id="p-show2" type="checkbox"></div>
+    </div>
+
+    <div class="results" id="results"></div>
+    <div class="breakeven" id="breakeven"></div>
+  </section>
+</main>
+
+<nav>
+  <button class="on" id="nav-conv" onclick="showTab('conv')">Convertir</button>
+  <button id="nav-pay" onclick="showTab('pay')">¿Cómo pago?</button>
+</nav>
+
+<script>
+/* ---------- state ---------- */
+const DEFAULTS = { usd: 790, eur: 925, usdt: 830, igtf: 3, spread: 0, src: { usd: 'manual', eur: 'manual', usdt: 'manual' }, at: null };
+let S = load();
+
+function load() {
+  try { const j = localStorage.getItem('tasas-v1'); if (j) return Object.assign({}, DEFAULTS, JSON.parse(j)); } catch (e) {}
+  return { ...DEFAULTS, src: { ...DEFAULTS.src } };
+}
+function save() { try { localStorage.setItem('tasas-v1', JSON.stringify(S)); } catch (e) {} }
+
+const $ = id => document.getElementById(id);
+const num = v => { const n = parseFloat(String(v).replace(',', '.')); return isFinite(n) ? n : 0; };
+const fmt = (n, d = 2) => n.toLocaleString('es-VE', { minimumFractionDigits: d, maximumFractionDigits: d });
+const fmtIn = n => (Math.round(n * 100) / 100).toString();
+
+/* ---------- rates header ---------- */
+function renderRates() {
+  for (const k of ['usd', 'eur', 'usdt']) {
+    const el = $('r-' + k);
+    el.querySelector('b').textContent = fmt(S[k]) + ' Bs';
+    el.querySelector('i').textContent = S.src[k] === 'manual' ? 'manual' : S.src[k];
+    el.classList.toggle('manual', S.src[k] === 'manual');
+  }
+  $('stamp').textContent = S.at ? 'hace ' + age(S.at) : 'tasas manuales';
+  $('stamp').style.color = S.at && Date.now() - S.at > 3 * 3600e3 ? 'var(--mark)' : '';
+  $('p-igtf').value = S.igtf;
+}
+
+function age(t) {
+  const m = Math.round((Date.now() - t) / 60000);
+  if (m < 1) return 'un momento'; if (m < 60) return m + ' min';
+  const h = Math.floor(m / 60); if (h < 24) return h + ' h ' + (m % 60) + ' min';
+  return Math.floor(h / 24) + ' d';
+}
+
+/* ---------- editor ---------- */
+function openEditor() {
+  for (const k of ['usd', 'eur', 'usdt', 'igtf', 'spread']) $('e-' + k).value = S[k];
+  $('editor').classList.add('open'); $('e-usd').focus();
+}
+function closeEditor() { $('editor').classList.remove('open'); }
+function saveEditor() {
+  for (const k of ['usd', 'eur', 'usdt']) {
+    const v = num($('e-' + k).value);
+    if (v > 0 && v !== S[k]) { S[k] = v; S.src[k] = 'manual'; }
+  }
+  S.igtf = num($('e-igtf').value); S.spread = num($('e-spread').value);
+  save(); renderRates(); closeEditor(); recalcAll();
+}
+
+/* ---------- fetch rates (best effort; CORS may block, manual always works) ---------- */
+const SOURCES = [
+  { name: 'repo', url: './rates.json?t=' , cacheBust: true,
+    parse: j => { const r = j.rates || {}; const o = {}; for (const k of ['usd','eur','usdt']) if (r[k] > 0) o[k] = num(r[k]); o._at = j.updated_at; o._src = j.sources || {}; return o; } },
+  { name: 'dolarapi', url: 'https://ve.dolarapi.com/v1/dolares',
+    parse: j => { const o = {}; for (const r of j) { const n = (r.nombre || r.fuente || '').toLowerCase(); const p = num(r.promedio || r.venta || r.compra);
+      if (n.includes('oficial') && p) o.usd = p; if ((n.includes('bitcoin') || n.includes('binance') || n.includes('cripto')) && p) o.usdt = p; } return o; } },
+  { name: 'pydolarve', url: 'https://pydolarve.org/api/v2/dollar?page=bcv',
+    parse: j => { const m = j.monitors || {}; const o = {}; if (m.usd && m.usd.price) o.usd = num(m.usd.price); if (m.eur && m.eur.price) o.eur = num(m.eur.price); return o; } },
+  { name: 'pydolarve', url: 'https://pydolarve.org/api/v2/euro?page=bcv',
+    parse: j => { const m = j.monitors || {}; const o = {}; if (m.eur && m.eur.price) o.eur = num(m.eur.price); return o; } },
+  { name: 'pydolarve', url: 'https://pydolarve.org/api/v2/dollar?page=binance',
+    parse: j => { const m = j.monitors || {}; const o = {}; const k = Object.keys(m)[0]; if (k && m[k].price) o.usdt = num(m[k].price); return o; } },
+];
+async function fetchRates(silent) {
+  const btn = $('btn-fetch'); btn.disabled = true; if (!silent) $('status').textContent = 'Consultando…';
+  const got = {}; const okSrc = {}; let repoAt = null;
+  await Promise.all(SOURCES.map(async s => {
+    try {
+      const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 7000);
+      const r = await fetch(s.cacheBust ? s.url + Date.now() : s.url, { signal: ctl.signal, cache: 'no-store' }); clearTimeout(t);
+      if (!r.ok) throw 0;
+      const o = s.parse(await r.json());
+      for (const k of ['usd','eur','usdt']) if (o[k] > 0 && !got[k]) { got[k] = o[k]; okSrc[k] = (o._src && o._src[k]) || s.name; }
+      if (o._at && !repoAt) repoAt = o._at;
+    } catch (e) {}
+  }));
+  const keys = Object.keys(got);
+  if (keys.length) {
+    for (const k of keys) { S[k] = got[k]; S.src[k] = okSrc[k]; }
+    S.at = repoAt || Date.now(); S.checked = Date.now(); save(); renderRates(); recalcAll();
+    const missing = ['usd', 'eur', 'usdt'].filter(k => !got[k]);
+    $('status').textContent = missing.length ? 'Sin datos para: ' + missing.map(k => k.toUpperCase()).join(', ') + '. Edítalos a mano.' : '';
+  } else if (!silent) {
+    $('status').textContent = 'No se pudo conectar a las fuentes. Escribe las tasas a mano (se guardan).';
+  }
+  btn.disabled = false;
+}
+
+/* ---------- converter ---------- */
+const CONV = { bs: 1, usd: () => S.usd, eur: () => S.eur, usdt: () => S.usdt };
+const toBs = (v, cur) => cur === 'bs' ? v : v * CONV[cur]();
+const fromBs = (bs, cur) => cur === 'bs' ? bs : bs / CONV[cur]();
+let convSrc = 'usd';
+
+function onConvInput(e) {
+  convSrc = e.target.dataset.cur; recalcConv();
+}
+function recalcConv() {
+  const srcEl = $('c-' + convSrc);
+  const bs = toBs(num(srcEl.value), convSrc);
+  for (const cur of ['bs', 'usd', 'eur', 'usdt']) {
+    const el = $('c-' + cur); el.classList.toggle('src', cur === convSrc);
+    if (cur !== convSrc) el.value = srcEl.value === '' ? '' : fmtIn(fromBs(bs, cur));
+  }
+  const d = $('conv-diff');
+  const gap = (S.usdt / S.usd - 1) * 100;
+  d.innerHTML = `USDT vs $ BCV: la brecha es de <b>${fmt(gap, 1)}%</b>. ` +
+    (bs > 0 ? `Esos <b>${fmt(bs)} Bs</b> te cuestan <b>${fmt(bs / S.usdt)} USDT</b> si vendes USDT en P2P, contra <b>${fmt(bs / S.usd)} $</b> a tasa BCV.` :
+      'Escribe una cantidad en cualquier campo; los demás se calculan solos.');
+}
+function clearConv() { for (const c of ['bs', 'usd', 'eur', 'usdt']) $('c-' + c).value = ''; recalcConv(); $('c-bs').focus(); }
+
+/* ---------- payment ---------- */
+let paySrc = 'usd';
+function onPayInput(e) { paySrc = e.target.dataset.cur; recalcPay(); }
+
+function recalcPay() {
+  const srcEl = $('p-' + paySrc);
+  const raw = num(srcEl.value);
+  const priceUsd = paySrc === 'usd' ? raw : raw / S.usd;
+  const priceBs = priceUsd * S.usd;
+  for (const c of ['usd', 'bs']) { const el = $('p-' + c); el.classList.toggle('src', c === paySrc); }
+  if (paySrc === 'usd') $('p-bs').value = srcEl.value === '' ? '' : fmtIn(priceBs);
+  else $('p-usd').value = srcEl.value === '' ? '' : fmtIn(priceUsd);
+
+  const disc = num($('p-disc').value) / 100, igtf = num($('p-igtf').value) / 100;
+  const disc2 = num($('p-disc2').value) / 100, igtf2 = $('p-igtf2').checked ? igtf : 0;
+  const spread = S.spread / 100;
+  S.igtf = igtf * 100; save();
+
+  // Everything measured in USDT you'd actually spend.
+  const opts = [
+    { key: 'bs', name: 'Pagar en Bs (pago móvil / punto)',
+      usdt: priceBs / S.usdt, pay: `${fmt(priceBs)} Bs`,
+      sub: `Vendes USDT a ${fmt(S.usdt)} Bs y pagas el precio completo en bolívares. Sin IGTF.` },
+    { key: 'cash', name: `Efectivo $ con ${fmt(disc * 100, 0)}% de descuento`,
+      usdt: priceUsd * (1 - disc) * (1 + igtf) * (1 + spread), pay: `$ ${fmt(priceUsd * (1 - disc) * (1 + igtf))}`,
+      sub: `Precio − ${fmt(disc * 100, 0)}% + IGTF ${fmt(igtf * 100, 1)}%${spread ? ` + ${fmt(spread * 100, 1)}% por pasar USDT a efectivo` : ''}.` },
+  ];
+  if ($('p-show2').checked) opts.push({ key: 'usdt', name: `USDT / Zelle directo${disc2 ? ` con ${fmt(disc2 * 100, 0)}%` : ''}`,
+    usdt: priceUsd * (1 - disc2) * (1 + igtf2), pay: `${fmt(priceUsd * (1 - disc2) * (1 + igtf2))} USDT`,
+    sub: `Precio${disc2 ? ` − ${fmt(disc2 * 100, 0)}%` : ''}${igtf2 ? ` + IGTF ${fmt(igtf2 * 100, 1)}%` : ', sin IGTF'}.` });
+
+  const box = $('results');
+  if (!(priceUsd > 0)) { box.innerHTML = ''; $('breakeven').innerHTML = ''; return; }
+  const best = opts.reduce((a, b) => b.usdt < a.usdt ? b : a);
+  const worst = opts.reduce((a, b) => b.usdt > a.usdt ? b : a);
+  box.innerHTML = opts.map(o => {
+    const d = o.usdt - best.usdt;
+    const delta = o === best
+      ? `<div class="delta less">Ahorras ${fmt(worst.usdt - o.usdt)} USDT (${fmt((1 - o.usdt / worst.usdt) * 100, 1)}%) frente a la peor opción</div>`
+      : `<div class="delta more">+${fmt(d)} USDT (${fmt(d / best.usdt * 100, 1)}%) más que la mejor</div>`;
+    return `<div class="res ${o === best ? 'best' : ''}">
+      <div class="top"><span class="name">${o.name}</span><span class="cost">${fmt(o.usdt)} <small>USDT</small></span></div>
+      <div class="sub">Entregas: <b>${o.pay}</b>. ${o.sub}</div>${delta}</div>`;
+  }).join('');
+
+  // Break-even discount: cash cost == Bs cost  →  d* = 1 − (bcv/p2p)/((1+igtf)(1+spread))
+  const dStar = (1 - (S.usd / S.usdt) / ((1 + igtf) * (1 + spread))) * 100;
+  $('breakeven').innerHTML = dStar > 0
+    ? `Con las tasas de hoy, pagar en efectivo solo conviene si el descuento es mayor a <b>${fmt(dStar, 1)}%</b>. Por debajo de eso, paga en bolívares.`
+    : `Con las tasas de hoy, pagar en efectivo conviene incluso sin descuento (la brecha BCV–P2P es menor que el IGTF).`;
+}
+
+/* ---------- tabs & wiring ---------- */
+function showTab(t) {
+  for (const k of ['conv', 'pay']) { $('tab-' + k).classList.toggle('active', k === t); $('nav-' + k).classList.toggle('on', k === t); }
+  try { localStorage.setItem('tasas-tab', t); } catch (e) {}
+}
+function recalcAll() { recalcConv(); recalcPay(); }
+
+for (const c of ['bs', 'usd', 'eur', 'usdt']) $('c-' + c).addEventListener('input', onConvInput);
+for (const c of ['usd', 'bs']) $('p-' + c).addEventListener('input', onPayInput);
+for (const id of ['p-disc', 'p-igtf', 'p-disc2', 'p-igtf2', 'p-show2']) $(id).addEventListener('input', () => {
+  if (id === 'p-disc') syncChips();
+  recalcPay();
+});
+$('chips').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  $('p-disc').value = b.dataset.d; syncChips(); recalcPay();
+});
+function syncChips() { const v = num($('p-disc').value); for (const b of $('chips').children) b.classList.toggle('on', num(b.dataset.d) === v); }
+
+renderRates();
+try { showTab(localStorage.getItem('tasas-tab') || 'conv'); } catch (e) { showTab('conv'); }
+$('c-usd').value = '1'; recalcAll();
+const REFRESH_MS = 10 * 60 * 1000;
+function maybeRefresh() { if (!S.checked || Date.now() - S.checked > REFRESH_MS) fetchRates(true); else renderRates(); }
+maybeRefresh();
+setInterval(maybeRefresh, 60 * 1000);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') maybeRefresh(); });
+window.addEventListener('online', () => fetchRates(true));
+</script>
+</body>
+</html>
