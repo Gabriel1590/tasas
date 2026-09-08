@@ -1,6 +1,15 @@
 {
-  "updated_at": null,
-  "rates": {},
-  "sources": {},
-  "errors": ["not fetched yet - run the 'Update rates' workflow"]
+  "updated_at": 1788899915656,
+  "rates": {
+    "usdt": 967.0,
+    "usdt_min": 966.6,
+    "usdt_max": 973.9
+  },
+  "sources": {
+    "usdt": "binance-p2p"
+  },
+  "errors": [
+    "bcv.org.ve: bcv.org.ve: no rates found in page",
+    "pydolarve: <urlopen error [Errno -2] Name or service not known>"
+  ]
 }
