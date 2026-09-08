@@ -7,7 +7,12 @@ import json, re, statistics, sys, time, urllib.request, ssl
 from pathlib import Path
 
 OUT = Path(__file__).resolve().parent.parent / "rates.json"
-UA = {"User-Agent": "Mozilla/5.0 (rates-bot)", "Accept": "application/json, text/html"}
+UA = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36",
+    "Accept": "application/json, text/html;q=0.9, */*;q=0.8",
+    "Accept-Language": "es-VE,es;q=0.9,en;q=0.8",
+}
+DEBUG = {}
 
 
 def get(url, data=None, timeout=20, insecure=False):
@@ -18,31 +23,94 @@ def get(url, data=None, timeout=20, insecure=False):
 
 
 def num(s):
-    return float(str(s).replace(".", "").replace(",", ".")) if "," in str(s) else float(s)
+    s = str(s).strip()
+    if "," in s and "." in s:          # 1.234,56 -> 1234.56
+        s = s.replace(".", "").replace(",", ".")
+    elif "," in s:                     # 967,45 -> 967.45
+        s = s.replace(",", ".")
+    return float(s)
 
+
+def plausible(v):
+    return 50 < v < 100000
+
+
+# ---------- BCV sources (tried in order until usd AND eur are found) ----------
 
 def bcv_official():
-    """Scrape bcv.org.ve: rates live in <div id="dolar"> / <div id="euro"> as strong text like 137,45300000."""
+    """Scrape bcv.org.ve. Looks for the number that follows 'USD' / 'EUR' markers."""
     html = get("https://www.bcv.org.ve/", insecure=True)
+    DEBUG["bcv_len"] = len(html)
+    DEBUG["bcv_title"] = (re.search(r"<title>(.*?)</title>", html, re.S | re.I) or [None, ""])[1].strip()[:80]
+    i = html.lower().find("dolar")
+    DEBUG["bcv_snippet"] = re.sub(r"\s+", " ", html[i:i + 400]) if i >= 0 else "no 'dolar' in page"
     out = {}
-    for key, div in (("usd", "dolar"), ("eur", "euro")):
-        m = re.search(rf'id="{div}".*?<strong>\s*([\d.,]+)\s*</strong>', html, re.S)
-        if m:
-            out[key] = num(m.group(1))
+    for key, marks in (("usd", ("USD", "dolar")), ("eur", ("EUR", "euro"))):
+        for mk in marks:
+            m = re.search(re.escape(mk) + r".{0,400}?(\d{1,3}(?:\.\d{3})*,\d{2,8}|\d+\.\d{2,8})", html, re.S)
+            if m and plausible(num(m.group(1))):
+                out[key] = num(m.group(1))
+                break
     if not out:
-        raise ValueError("bcv.org.ve: no rates found in page")
+        raise ValueError("no rates found in page")
     return out
 
 
-def bcv_pydolarve():
-    o = {}
-    for cur, ep in (("usd", "dollar"), ("eur", "euro")):
-        j = json.loads(get(f"https://pydolarve.org/api/v2/{ep}?page=bcv&monitor=usd"))
-        p = j.get("price") or (j.get("monitors") or {}).get("usd", {}).get("price")
-        if p:
-            o[cur] = float(p)
-    return o
+def dolarapi_ve():
+    out = {}
+    j = json.loads(get("https://ve.dolarapi.com/v1/dolares/oficial"))
+    p = j.get("promedio") or j.get("venta") or j.get("compra")
+    if p and plausible(float(p)):
+        out["usd"] = float(p)
+    try:
+        j = json.loads(get("https://ve.dolarapi.com/v1/euros/oficial"))
+        p = j.get("promedio") or j.get("venta")
+        if p and plausible(float(p)):
+            out["eur"] = float(p)
+    except Exception:  # noqa: BLE001
+        pass
+    return out
 
+
+def dolarvzla():
+    j = json.loads(get("https://api.dolarvzla.com/public/exchange-rate"))
+    cur = j.get("current") or j
+    out = {}
+    if cur.get("usd"):
+        out["usd"] = float(cur["usd"])
+    if cur.get("eur"):
+        out["eur"] = float(cur["eur"])
+    return out
+
+
+def bcv_rafnixg():
+    j = json.loads(get("https://bcv-api.rafnixg.dev/rates/"))
+    out = {}
+    if j.get("dollar"):
+        out["usd"] = float(j["dollar"])
+    if j.get("euro"):
+        out["eur"] = float(j["euro"])
+    return out
+
+
+BCV_SOURCES = (("bcv.org.ve", bcv_official), ("dolarapi", dolarapi_ve), ("dolarvzla", dolarvzla), ("rafnixg", bcv_rafnixg))
+
+
+def eur_usd_market():
+    """EUR/USD cross rate to derive BCV EUR when no source gives it."""
+    for url, path in (("https://open.er-api.com/v6/latest/EUR", ("rates", "USD")),
+                      ("https://api.frankfurter.app/latest?from=EUR&to=USD", ("rates", "USD"))):
+        try:
+            j = json.loads(get(url))
+            v = float(j[path[0]][path[1]])
+            if 0.7 < v < 1.6:
+                return v
+        except Exception:  # noqa: BLE001
+            continue
+    raise ValueError("no EUR/USD source")
+
+
+# ---------- Binance P2P ----------
 
 def binance_p2p(trade_type="SELL", rows=10):
     """Median price of the top ads. SELL = you selling USDT for Bs (what matters when you pay in Bs)."""
@@ -53,31 +121,42 @@ def binance_p2p(trade_type="SELL", rows=10):
     j = json.loads(get("https://p2p.binance.com/bapi/c2c/v2/friendly/c2c/adv/search", data=body))
     prices = [float(a["adv"]["price"]) for a in j.get("data", []) if a.get("adv", {}).get("price")]
     if not prices:
-        raise ValueError("binance: empty ad list")
+        raise ValueError("empty ad list")
     return {"usdt": round(statistics.median(prices), 4), "usdt_min": min(prices), "usdt_max": max(prices)}
 
+
+# ---------- main ----------
 
 def main():
     prev = json.loads(OUT.read_text()) if OUT.exists() else {}
     rates = dict(prev.get("rates", {}))
     sources = dict(prev.get("sources", {}))
     errors = []
+    fresh = {}
 
-    for name, fn in (("bcv.org.ve", bcv_official), ("pydolarve", bcv_pydolarve)):
+    for name, fn in BCV_SOURCES:
         try:
             got = fn()
-            for k, v in got.items():
-                if k in ("usd", "eur") and v > 0 and (k not in sources or sources[k] != "bcv.org.ve" or name == "bcv.org.ve"):
-                    rates[k] = v
+            for k in ("usd", "eur"):
+                if k not in fresh and got.get(k) and plausible(got[k]):
+                    fresh[k] = got[k]
                     sources[k] = name
-            if "usd" in got and "eur" in got:
+            if "usd" in fresh and "eur" in fresh:
                 break
         except Exception as e:  # noqa: BLE001
             errors.append(f"{name}: {e}")
 
+    if "usd" in fresh and "eur" not in fresh:
+        try:
+            fresh["eur"] = round(fresh["usd"] * eur_usd_market(), 4)
+            sources["eur"] = f"derived ({sources['usd']} × EUR/USD)"
+        except Exception as e:  # noqa: BLE001
+            errors.append(f"eur derive: {e}")
+
+    rates.update(fresh)
+
     try:
-        got = binance_p2p()
-        rates.update(got)
+        rates.update(binance_p2p())
         sources["usdt"] = "binance-p2p"
     except Exception as e:  # noqa: BLE001
         errors.append(f"binance: {e}")
@@ -87,10 +166,10 @@ def main():
         "rates": rates,
         "sources": sources,
         "errors": errors,
+        "debug": DEBUG,
     }
     OUT.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n")
-    print(json.dumps(payload, indent=2))
-    # Fail loudly only if we have nothing at all.
+    print(json.dumps(payload, indent=2, ensure_ascii=False))
     if not rates:
         sys.exit(1)
 
