@@ -15,27 +15,27 @@
     --paper:#FFFFFF; --ink:#141A17; --mute:#5E6963; --line:#D9DED9; --wash:#EEF3EF;
     --bad:#B3261E;
   }
-  *{box-sizing:border-box}
+  *{box-sizing:border-box;min-width:0}
   html,body{margin:0;background:var(--wash);color:var(--ink);
     font-family:-apple-system,"SF Pro Text",system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    font-variant-numeric:tabular-nums;-webkit-text-size-adjust:100%}
+    font-variant-numeric:tabular-nums;-webkit-text-size-adjust:100%;overflow-x:hidden}
   body{min-height:100dvh;display:flex;flex-direction:column}
   button,input,select{font:inherit;color:inherit}
-  input[type=number]{-moz-appearance:textfield}
-  input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  input{width:100%}
   :focus-visible{outline:3px solid var(--mark);outline-offset:2px}
+  button{cursor:pointer;touch-action:manipulation}
 
   /* Header / rates strip */
   header{background:var(--green);color:#fff;padding:calc(env(safe-area-inset-top) + 14px) 16px 14px}
   .h-row{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
   h1{margin:0;font-size:18px;font-weight:600;letter-spacing:-.01em}
-  .stamp{font-size:12px;opacity:.8}
+  .stamp{font-size:12px;opacity:.8;white-space:nowrap}
   .rates{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
-  .rate{background:rgba(255,255,255,.08);border-radius:10px;padding:8px 10px;text-align:left;border:1px solid transparent}
+  .rate{background:rgba(255,255,255,.08);border-radius:10px;padding:8px 8px;text-align:left;border:1px solid transparent}
   .rate.manual{border-color:rgba(255,216,77,.7)}
-  .rate small{display:block;font-size:11px;opacity:.85}
-  .rate b{display:block;font-size:17px;font-weight:600;margin-top:2px;white-space:nowrap}
-  .rate i{display:block;font-size:10px;font-style:normal;opacity:.7;margin-top:2px}
+  .rate small{display:block;font-size:11px;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rate b{display:block;font-size:clamp(14px,4.2vw,17px);font-weight:600;margin-top:2px;white-space:nowrap}
+  .rate i{display:block;font-size:10px;font-style:normal;opacity:.7;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .h-actions{display:flex;gap:8px;margin-top:10px}
   .h-actions button{flex:1;background:transparent;border:1px solid rgba(255,255,255,.45);color:#fff;border-radius:9px;padding:9px;font-size:14px}
   .h-actions button.primary{background:var(--mark);color:var(--green-deep);border-color:var(--mark);font-weight:600}
@@ -47,70 +47,95 @@
   .editor.open{display:block}
   .editor label{display:block;font-size:13px;margin:10px 0 4px}
   .editor .in{display:flex;align-items:center;background:#fff;color:var(--ink);border-radius:9px;overflow:hidden}
-  .editor .in input{flex:1;border:0;padding:10px 12px;font-size:18px;min-width:0;background:transparent}
-  .editor .in span{padding:0 12px;color:var(--mute);font-size:13px}
+  .editor .in input{flex:1;border:0;padding:10px 10px;font-size:17px;background:transparent}
+  .editor .in span{padding:0 10px;color:var(--mute);font-size:13px;flex:none}
   .editor .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .editor .row.three{grid-template-columns:1fr 1fr 1fr}
   .editor .hint{font-size:12px;opacity:.75;margin-top:10px;line-height:1.4}
 
-  main{flex:1;padding:16px 16px calc(84px + env(safe-area-inset-bottom))}
+  main{flex:1;padding:16px 16px calc(84px + env(safe-area-inset-bottom));max-width:640px;width:100%;margin:0 auto}
   section{display:none}
   section.active{display:block}
 
-  /* Converter */
-  .conv{background:var(--paper);border-radius:14px;border:1px solid var(--line);overflow:hidden}
-  .field{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line)}
-  .field:last-child{border-bottom:0}
-  .field .tag{width:74px;flex:none}
-  .field .tag b{display:block;font-size:15px;font-weight:600}
-  .field .tag small{display:block;font-size:11px;color:var(--mute)}
-  .field input{flex:1;min-width:0;border:0;background:transparent;font-size:26px;font-weight:500;text-align:right;padding:0;letter-spacing:-.01em}
-  .field input.src{color:var(--green)}
-  .field .x{flex:none;border:0;background:var(--wash);border-radius:50%;width:30px;height:30px;color:var(--mute);font-size:16px;line-height:1}
-  .diff{margin-top:12px;background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:12px 16px;font-size:14px;line-height:1.5}
-  .diff b{color:var(--green)}
-
-  /* Payment */
+  /* Shared card */
   .card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:12px}
-  .card h2{margin:0 0 10px;font-size:15px;font-weight:600}
-  .price-row{display:flex;gap:10px}
-  .price-row .in{flex:1;display:flex;align-items:center;background:var(--wash);border-radius:10px;overflow:hidden}
-  .price-row .in span{padding:0 0 0 12px;color:var(--mute);font-size:13px;flex:none}
-  .price-row .in input{flex:1;min-width:0;border:0;background:transparent;font-size:22px;font-weight:500;padding:10px 12px;text-align:right}
-  .price-row .in input.src{color:var(--green)}
-  .opt-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-  .opt{display:flex;flex-direction:column;gap:4px}
-  .opt label{font-size:12px;color:var(--mute)}
-  .opt .in{display:flex;align-items:center;background:var(--wash);border-radius:10px}
-  .opt .in input{flex:1;min-width:0;border:0;background:transparent;font-size:18px;padding:9px 10px;text-align:right}
-  .opt .in span{padding-right:10px;color:var(--mute);font-size:13px}
-  .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+  .card h2{margin:0 0 10px;font-size:15px;font-weight:600;display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .card h2 .link{background:none;border:0;color:var(--green);font-size:13px;font-weight:500;padding:0}
+  .in{display:flex;align-items:center;background:var(--wash);border-radius:10px;overflow:hidden}
+  .in input{flex:1;border:0;background:transparent;font-size:18px;padding:9px 10px;text-align:right}
+  .in span{padding:0 10px;color:var(--mute);font-size:13px;flex:none}
+  .in span.lead{padding:0 0 0 12px}
+  .in input.src{color:var(--green);font-weight:600}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .opt label{display:block;font-size:12px;color:var(--mute);margin-bottom:4px;line-height:1.3}
+  .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
   .chips button{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:6px 11px;font-size:13px}
   .chips button.on{background:var(--green);border-color:var(--green);color:#fff}
   .toggle{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;margin-top:10px;color:var(--mute)}
-  .toggle input{width:20px;height:20px;accent-color:var(--green)}
+  .toggle input,input[type=checkbox]{width:22px;height:22px;accent-color:var(--green);flex:none;margin:0}
+  .btn{border:1px solid var(--line);background:var(--paper);border-radius:10px;padding:10px 14px;font-size:14px}
+  .btn.primary{background:var(--green);color:#fff;border-color:var(--green);font-weight:600}
+  .btn.ghost{background:transparent}
+  .btn.danger{color:var(--bad)}
+  .btn-row{display:flex;gap:8px;margin-top:12px}
+  .btn-row .btn{flex:1}
+  .note{font-size:12px;color:var(--mute);line-height:1.45;margin-top:8px}
+  .toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:#fff;padding:8px 14px;border-radius:999px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s}
+  .toast.show{opacity:1}
 
-  .results{display:flex;flex-direction:column;gap:10px}
+  /* Converter */
+  .conv{background:var(--paper);border-radius:14px;border:1px solid var(--line);overflow:hidden}
+  .field{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line)}
+  .field:last-child{border-bottom:0}
+  .field .tag{width:72px;flex:none}
+  .field .tag b{display:block;font-size:15px;font-weight:600}
+  .field .tag small{display:block;font-size:11px;color:var(--mute)}
+  .field input{flex:1;border:0;background:transparent;font-size:clamp(20px,6vw,26px);font-weight:500;text-align:right;padding:0;letter-spacing:-.01em}
+  .field input.src{color:var(--green)}
+  .diff{margin-top:12px;background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:12px 16px;font-size:14px;line-height:1.5}
+  .diff b{color:var(--green)}
+
+  /* Payment details */
+  .kv{display:grid;grid-template-columns:1fr auto;gap:4px 12px;font-size:13px;margin-top:10px}
+  .kv .k{color:var(--mute)}
+  .kv .v{text-align:right;white-space:nowrap}
+  .kv .v.neg{color:var(--green)} .kv .v.pos{color:var(--bad)}
+  .kv .tot{font-weight:600;border-top:1px solid var(--line);padding-top:6px;margin-top:2px}
+  .results{display:flex;flex-direction:column;gap:12px;margin-top:16px}
   .res{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:14px 16px;position:relative}
   .res.best{border-color:var(--green);box-shadow:inset 0 0 0 1px var(--green)}
   .res.best::before{content:"Mejor opción";position:absolute;top:-10px;left:14px;background:var(--mark);color:var(--green-deep);font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px}
-  .res .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+  .res .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
   .res .name{font-size:14px;font-weight:600}
-  .res .cost{font-size:24px;font-weight:600;letter-spacing:-.01em;white-space:nowrap}
+  .res .cost{font-size:22px;font-weight:600;letter-spacing:-.01em;white-space:nowrap}
   .res .cost small{font-size:13px;font-weight:500;color:var(--mute)}
-  .res .sub{font-size:12px;color:var(--mute);margin-top:4px;line-height:1.45}
-  .res .delta{font-size:13px;margin-top:6px}
+  .res .delta{font-size:13px;margin-top:8px}
   .res .delta.more{color:var(--bad)}
   .res .delta.less{color:var(--green)}
   .breakeven{margin-top:12px;font-size:13px;color:var(--mute);line-height:1.5;padding:0 4px}
   .breakeven b{color:var(--ink)}
 
+  /* Plan */
+  .item{display:grid;grid-template-columns:1fr 118px 34px;gap:8px;align-items:center;margin-bottom:8px}
+  .item select{border:0;background:var(--wash);border-radius:10px;padding:10px 8px;font-size:14px;width:100%;appearance:auto}
+  .item .x{border:0;background:var(--wash);border-radius:50%;width:34px;height:34px;color:var(--mute);font-size:18px;line-height:1;padding:0}
+  .plan-total{font-size:clamp(24px,8vw,34px);font-weight:600;color:var(--green);letter-spacing:-.02em;margin:4px 0 2px}
+  .plan-total small{font-size:15px;color:var(--mute);font-weight:500}
+
+  /* History */
+  .hist{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:10px;display:grid;grid-template-columns:1fr auto;gap:6px 10px;align-items:start}
+  .hist .t{font-size:11px;color:var(--mute)}
+  .hist .l{font-size:14px;font-weight:600;margin-top:2px}
+  .hist .d{font-size:13px;color:var(--mute);margin-top:4px;line-height:1.4}
+  .hist .a{display:flex;flex-direction:column;gap:6px}
+  .hist .a button{font-size:12px;padding:6px 10px}
+  .empty{text-align:center;color:var(--mute);font-size:14px;padding:32px 16px;line-height:1.5}
+
   /* Tabs */
   nav{position:fixed;left:0;right:0;bottom:0;background:var(--paper);border-top:1px solid var(--line);
-    display:grid;grid-template-columns:1fr 1fr;padding:6px 10px calc(6px + env(safe-area-inset-bottom))}
-  nav button{border:0;background:transparent;padding:10px 6px;border-radius:10px;font-size:14px;color:var(--mute)}
+    display:grid;grid-template-columns:repeat(4,1fr);padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
+  nav button{border:0;background:transparent;padding:10px 4px;border-radius:10px;font-size:13px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   nav button.on{color:var(--green);font-weight:600;background:var(--wash)}
-  @media (prefers-reduced-motion:no-preference){.res{transition:border-color .15s}}
 </style>
 </head>
 <body>
@@ -123,7 +148,7 @@
   <div class="rates">
     <button class="rate" id="r-usd" onclick="openEditor()"><small>Dólar BCV</small><b>—</b><i></i></button>
     <button class="rate" id="r-eur" onclick="openEditor()"><small>Euro BCV</small><b>—</b><i></i></button>
-    <button class="rate" id="r-usdt" onclick="openEditor()"><small>USDT Binance P2P</small><b>—</b><i></i></button>
+    <button class="rate" id="r-usdt" onclick="openEditor()"><small>USDT P2P</small><b>—</b><i></i></button>
   </div>
   <div class="h-actions">
     <button class="primary" id="btn-fetch" onclick="fetchRates()">Actualizar tasas</button>
@@ -134,13 +159,13 @@
 
 <div class="editor" id="editor">
   <div class="row three">
-    <div><label for="e-usd">Dólar BCV</label><div class="in"><input id="e-usd" type="number" inputmode="decimal" step="any"><span>Bs</span></div></div>
-    <div><label for="e-eur">Euro BCV</label><div class="in"><input id="e-eur" type="number" inputmode="decimal" step="any"><span>Bs</span></div></div>
-    <div><label for="e-usdt">USDT P2P</label><div class="in"><input id="e-usdt" type="number" inputmode="decimal" step="any"><span>Bs</span></div></div>
+    <div><label for="e-usd">Dólar BCV</label><div class="in"><input id="e-usd" inputmode="decimal"><span>Bs</span></div></div>
+    <div><label for="e-eur">Euro BCV</label><div class="in"><input id="e-eur" inputmode="decimal"><span>Bs</span></div></div>
+    <div><label for="e-usdt">USDT P2P</label><div class="in"><input id="e-usdt" inputmode="decimal"><span>Bs</span></div></div>
   </div>
   <div class="row" style="margin-top:4px">
-    <div><label for="e-igtf">IGTF (pago en divisas)</label><div class="in"><input id="e-igtf" type="number" inputmode="decimal" step="any"><span>%</span></div></div>
-    <div><label for="e-spread">Costo de pasar USDT a efectivo</label><div class="in"><input id="e-spread" type="number" inputmode="decimal" step="any"><span>%</span></div></div>
+    <div><label for="e-igtf">IGTF (pago en divisas)</label><div class="in"><input id="e-igtf" inputmode="decimal"><span>%</span></div></div>
+    <div><label for="e-spread">Costo de pasar USDT a efectivo</label><div class="in"><input id="e-spread" inputmode="decimal"><span>%</span></div></div>
   </div>
   <div class="hint">Las tasas que escribas se guardan en este teléfono y se usan hasta que las cambies o actualices. Para USDT, copia el precio de venta que veas en Binance P2P.</div>
   <div class="h-actions">
@@ -150,48 +175,38 @@
 </div>
 
 <main>
-  <!-- Converter -->
+  <!-- ===== Convertir ===== -->
   <section id="tab-conv" class="active">
     <div class="conv">
-      <div class="field">
-        <div class="tag"><b>Bs</b><small>bolívares</small></div>
-        <input id="c-bs" type="number" inputmode="decimal" step="any" placeholder="0" data-cur="bs">
-        <button class="x" onclick="clearConv()" aria-label="Borrar">×</button>
-      </div>
-      <div class="field">
-        <div class="tag"><b>$ BCV</b><small>dólar oficial</small></div>
-        <input id="c-usd" type="number" inputmode="decimal" step="any" placeholder="0" data-cur="usd">
-      </div>
-      <div class="field">
-        <div class="tag"><b>€ BCV</b><small>euro oficial</small></div>
-        <input id="c-eur" type="number" inputmode="decimal" step="any" placeholder="0" data-cur="eur">
-      </div>
-      <div class="field">
-        <div class="tag"><b>USDT</b><small>Binance P2P</small></div>
-        <input id="c-usdt" type="number" inputmode="decimal" step="any" placeholder="0" data-cur="usdt">
-      </div>
+      <div class="field"><div class="tag"><b>Bs</b><small>bolívares</small></div><input id="c-bs" inputmode="decimal" placeholder="0" data-cur="bs"></div>
+      <div class="field"><div class="tag"><b>$ BCV</b><small>dólar oficial</small></div><input id="c-usd" inputmode="decimal" placeholder="0" data-cur="usd"></div>
+      <div class="field"><div class="tag"><b>€ BCV</b><small>euro oficial</small></div><input id="c-eur" inputmode="decimal" placeholder="0" data-cur="eur"></div>
+      <div class="field"><div class="tag"><b>USDT</b><small>Binance P2P</small></div><input id="c-usdt" inputmode="decimal" placeholder="0" data-cur="usdt"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn" onclick="resetConv()">Reiniciar</button>
+      <button class="btn primary" onclick="saveHistory('conv')">Guardar en historial</button>
     </div>
     <div class="diff" id="conv-diff"></div>
   </section>
 
-  <!-- Payment -->
+  <!-- ===== ¿Cómo pago? ===== -->
   <section id="tab-pay">
     <div class="card">
-      <h2>Precio del producto</h2>
-      <div class="price-row">
-        <div class="in"><span>$</span><input id="p-usd" type="number" inputmode="decimal" step="any" placeholder="0" data-cur="usd"></div>
-        <div class="in"><span>Bs</span><input id="p-bs" type="number" inputmode="decimal" step="any" placeholder="0" data-cur="bs"></div>
+      <h2>Precio del producto <button class="link" onclick="resetPay()">Limpiar</button></h2>
+      <div class="grid2">
+        <div class="in"><span class="lead">$</span><input id="p-usd" inputmode="decimal" placeholder="0" data-cur="usd"></div>
+        <div class="in"><span class="lead">Bs</span><input id="p-bs" inputmode="decimal" placeholder="0" data-cur="bs"></div>
       </div>
-      <div class="toggle" style="margin-top:8px"><span>El precio en $ se convierte a Bs con la tasa BCV, como marcan las tiendas.</span></div>
+      <div class="kv" id="p-detail"></div>
+      <div class="note">El precio en $ se pasa a Bs con la tasa BCV, como lo marcan las tiendas.</div>
     </div>
 
     <div class="card">
-      <h2>Si pagas en efectivo ($)</h2>
-      <div class="opt-grid">
-        <div class="opt"><label for="p-disc">Descuento que ofrece la tienda</label>
-          <div class="in"><input id="p-disc" type="number" inputmode="decimal" step="any" value="20"><span>%</span></div></div>
-        <div class="opt"><label for="p-igtf">IGTF</label>
-          <div class="in"><input id="p-igtf" type="number" inputmode="decimal" step="any"><span>%</span></div></div>
+      <h2>Efectivo en dólares</h2>
+      <div class="grid2">
+        <div class="opt"><label for="p-disc">Descuento de la tienda</label><div class="in"><input id="p-disc" inputmode="decimal" value="20"><span>%</span></div></div>
+        <div class="opt"><label for="p-igtf">IGTF</label><div class="in"><input id="p-igtf" inputmode="decimal"><span>%</span></div></div>
       </div>
       <div class="chips" id="chips">
         <button data-d="0">0%</button><button data-d="10">10%</button><button data-d="15">15%</button>
@@ -200,43 +215,84 @@
     </div>
 
     <div class="card">
-      <h2>Si pagas en USDT o Zelle directo</h2>
-      <div class="opt-grid">
-        <div class="opt"><label for="p-disc2">Descuento</label>
-          <div class="in"><input id="p-disc2" type="number" inputmode="decimal" step="any" value="0"><span>%</span></div></div>
-        <div class="opt"><label>Cobran IGTF</label>
-          <div class="in" style="justify-content:flex-end;padding:9px 10px"><input id="p-igtf2" type="checkbox" checked style="width:20px;height:20px;accent-color:var(--green)"></div></div>
+      <h2>USDT o Zelle directo <label class="toggle" style="margin:0"><input id="p-show2" type="checkbox"></label></h2>
+      <div class="grid2" id="p-box2">
+        <div class="opt"><label for="p-disc2">Descuento</label><div class="in"><input id="p-disc2" inputmode="decimal" value="0"><span>%</span></div></div>
+        <div class="opt"><label for="p-igtf2">Cobran IGTF</label><div class="in" style="justify-content:flex-end;padding:9px 10px"><input id="p-igtf2" type="checkbox" checked></div></div>
       </div>
-      <div class="toggle"><label for="p-show2">Mostrar esta opción</label><input id="p-show2" type="checkbox"></div>
     </div>
 
     <div class="results" id="results"></div>
     <div class="breakeven" id="breakeven"></div>
+    <div class="btn-row"><button class="btn primary" onclick="saveHistory('pay')">Guardar en historial</button></div>
+  </section>
+
+  <!-- ===== Cambio ===== -->
+  <section id="tab-plan">
+    <div class="card">
+      <h2>¿Qué tienes que pagar? <button class="link" onclick="resetPlan()">Limpiar</button></h2>
+      <div id="items"></div>
+      <div class="btn-row" style="margin-top:6px"><button class="btn" onclick="addItem()">+ Añadir gasto</button></div>
+      <div class="grid2" style="margin-top:12px">
+        <div class="opt"><label for="pl-margin">Colchón por redondeo</label><div class="in"><input id="pl-margin" inputmode="decimal" value="2"><span>%</span></div></div>
+        <div class="opt"><label for="pl-cash">Compro el efectivo con USDT</label><div class="in" style="justify-content:flex-end;padding:9px 10px"><input id="pl-cash" type="checkbox"></div></div>
+      </div>
+      <div class="note">Los gastos en efectivo se apartan: ya tienes esos billetes. Si no los tienes y vas a comprarlos con USDT, marca la casilla.</div>
+    </div>
+
+    <div class="card" id="plan-out"></div>
+    <div class="btn-row"><button class="btn primary" onclick="saveHistory('plan')">Guardar en historial</button></div>
+  </section>
+
+  <!-- ===== Historial ===== -->
+  <section id="tab-hist">
+    <div id="hist-list"></div>
+    <div class="btn-row" id="hist-actions" style="display:none"><button class="btn danger" onclick="clearHistory()">Borrar todo el historial</button></div>
   </section>
 </main>
+
+<div class="toast" id="toast"></div>
 
 <nav>
   <button class="on" id="nav-conv" onclick="showTab('conv')">Convertir</button>
   <button id="nav-pay" onclick="showTab('pay')">¿Cómo pago?</button>
+  <button id="nav-plan" onclick="showTab('plan')">Cambio</button>
+  <button id="nav-hist" onclick="showTab('hist')">Historial</button>
 </nav>
 
 <script>
 /* ---------- state ---------- */
-const DEFAULTS = { usd: 790, eur: 925, usdt: 830, igtf: 3, spread: 0, src: { usd: 'manual', eur: 'manual', usdt: 'manual' }, at: null };
+const DEFAULTS = { usd: 815, eur: 947, usdt: 967, igtf: 3, spread: 0, src: { usd: 'manual', eur: 'manual', usdt: 'manual' }, at: null, checked: null };
 let S = load();
-
 function load() {
   try { const j = localStorage.getItem('tasas-v1'); if (j) return Object.assign({}, DEFAULTS, JSON.parse(j)); } catch (e) {}
   return { ...DEFAULTS, src: { ...DEFAULTS.src } };
 }
 function save() { try { localStorage.setItem('tasas-v1', JSON.stringify(S)); } catch (e) {} }
+const store = { get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
 
 const $ = id => document.getElementById(id);
-const num = v => { const n = parseFloat(String(v).replace(',', '.')); return isFinite(n) ? n : 0; };
-const fmt = (n, d = 2) => n.toLocaleString('es-VE', { minimumFractionDigits: d, maximumFractionDigits: d });
+const num = v => { let s = String(v ?? '').trim(); if (s.includes(',') && s.includes('.')) s = s.replace(/\./g, '').replace(',', '.'); else s = s.replace(',', '.'); const n = parseFloat(s); return isFinite(n) ? n : 0; };
+const fmt = (n, d = 2) => (isFinite(n) ? n : 0).toLocaleString('es-VE', { minimumFractionDigits: d, maximumFractionDigits: d });
 const fmtIn = n => (Math.round(n * 100) / 100).toString();
+const CUR = { bs: { label: 'Bs', name: 'bolívares' }, usd: { label: '$ BCV', name: 'dólar BCV' }, eur: { label: '€ BCV', name: 'euro BCV' }, usdt: { label: 'USDT', name: 'USDT P2P' }, cash: { label: '$ efectivo', name: 'efectivo' } };
+const rate = c => c === 'bs' ? 1 : c === 'usd' ? S.usd : c === 'eur' ? S.eur : c === 'usdt' ? S.usdt : S.usdt; // cash valued like USDT (1:1) for planning
+const toBs = (v, c) => v * rate(c);
+const fromBs = (bs, c) => bs / rate(c);
+function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 1600); }
+
+/* Select-all on focus for every numeric input (touch and click) */
+document.addEventListener('focusin', e => { const el = e.target; if (el.tagName === 'INPUT' && el.getAttribute('inputmode') === 'decimal') setTimeout(() => { try { el.select(); } catch (_) {} }, 0); });
+document.addEventListener('mouseup', e => { const el = e.target; if (el.tagName === 'INPUT' && el.getAttribute('inputmode') === 'decimal' && el._justFocused) { e.preventDefault(); el._justFocused = false; } });
+document.addEventListener('focusin', e => { if (e.target.tagName === 'INPUT') { e.target._justFocused = true; setTimeout(() => e.target._justFocused = false, 300); } });
 
 /* ---------- rates header ---------- */
+function age(t) {
+  const m = Math.round((Date.now() - t) / 60000);
+  if (m < 1) return 'un momento'; if (m < 60) return m + ' min';
+  const h = Math.floor(m / 60); if (h < 24) return h + ' h ' + (m % 60) + ' min';
+  return Math.floor(h / 24) + ' d';
+}
 function renderRates() {
   for (const k of ['usd', 'eur', 'usdt']) {
     const el = $('r-' + k);
@@ -246,44 +302,24 @@ function renderRates() {
   }
   $('stamp').textContent = S.at ? 'hace ' + age(S.at) : 'tasas manuales';
   $('stamp').style.color = S.at && Date.now() - S.at > 3 * 3600e3 ? 'var(--mark)' : '';
-  $('p-igtf').value = S.igtf;
-}
-
-function age(t) {
-  const m = Math.round((Date.now() - t) / 60000);
-  if (m < 1) return 'un momento'; if (m < 60) return m + ' min';
-  const h = Math.floor(m / 60); if (h < 24) return h + ' h ' + (m % 60) + ' min';
-  return Math.floor(h / 24) + ' d';
+  if (document.activeElement !== $('p-igtf')) $('p-igtf').value = S.igtf;
 }
 
 /* ---------- editor ---------- */
-function openEditor() {
-  for (const k of ['usd', 'eur', 'usdt', 'igtf', 'spread']) $('e-' + k).value = S[k];
-  $('editor').classList.add('open'); $('e-usd').focus();
-}
+function openEditor() { for (const k of ['usd', 'eur', 'usdt', 'igtf', 'spread']) $('e-' + k).value = S[k]; $('editor').classList.add('open'); $('e-usd').focus(); }
 function closeEditor() { $('editor').classList.remove('open'); }
 function saveEditor() {
-  for (const k of ['usd', 'eur', 'usdt']) {
-    const v = num($('e-' + k).value);
-    if (v > 0 && v !== S[k]) { S[k] = v; S.src[k] = 'manual'; }
-  }
+  for (const k of ['usd', 'eur', 'usdt']) { const v = num($('e-' + k).value); if (v > 0 && v !== S[k]) { S[k] = v; S.src[k] = 'manual'; } }
   S.igtf = num($('e-igtf').value); S.spread = num($('e-spread').value);
   save(); renderRates(); closeEditor(); recalcAll();
 }
 
-/* ---------- fetch rates (best effort; CORS may block, manual always works) ---------- */
+/* ---------- fetch rates ---------- */
 const SOURCES = [
-  { name: 'repo', url: './rates.json?t=' , cacheBust: true,
-    parse: j => { const r = j.rates || {}; const o = {}; for (const k of ['usd','eur','usdt']) if (r[k] > 0) o[k] = num(r[k]); o._at = j.updated_at; o._src = j.sources || {}; return o; } },
-  { name: 'dolarapi', url: 'https://ve.dolarapi.com/v1/dolares',
-    parse: j => { const o = {}; for (const r of j) { const n = (r.nombre || r.fuente || '').toLowerCase(); const p = num(r.promedio || r.venta || r.compra);
-      if (n.includes('oficial') && p) o.usd = p; if ((n.includes('bitcoin') || n.includes('binance') || n.includes('cripto')) && p) o.usdt = p; } return o; } },
-  { name: 'pydolarve', url: 'https://pydolarve.org/api/v2/dollar?page=bcv',
-    parse: j => { const m = j.monitors || {}; const o = {}; if (m.usd && m.usd.price) o.usd = num(m.usd.price); if (m.eur && m.eur.price) o.eur = num(m.eur.price); return o; } },
-  { name: 'pydolarve', url: 'https://pydolarve.org/api/v2/euro?page=bcv',
-    parse: j => { const m = j.monitors || {}; const o = {}; if (m.eur && m.eur.price) o.eur = num(m.eur.price); return o; } },
-  { name: 'pydolarve', url: 'https://pydolarve.org/api/v2/dollar?page=binance',
-    parse: j => { const m = j.monitors || {}; const o = {}; const k = Object.keys(m)[0]; if (k && m[k].price) o.usdt = num(m[k].price); return o; } },
+  { name: 'repo', url: './rates.json?t=', cacheBust: true,
+    parse: j => { const r = j.rates || {}; const o = {}; for (const k of ['usd', 'eur', 'usdt']) if (r[k] > 0) o[k] = num(r[k]); o._at = j.updated_at; o._src = j.sources || {}; return o; } },
+  { name: 'dolarapi', url: 'https://ve.dolarapi.com/v1/dolares/oficial',
+    parse: j => { const o = {}; const p = num(j.promedio || j.venta); if (p > 0) o.usd = p; return o; } },
 ];
 async function fetchRates(silent) {
   const btn = $('btn-fetch'); btn.disabled = true; if (!silent) $('status').textContent = 'Consultando…';
@@ -294,7 +330,7 @@ async function fetchRates(silent) {
       const r = await fetch(s.cacheBust ? s.url + Date.now() : s.url, { signal: ctl.signal, cache: 'no-store' }); clearTimeout(t);
       if (!r.ok) throw 0;
       const o = s.parse(await r.json());
-      for (const k of ['usd','eur','usdt']) if (o[k] > 0 && !got[k]) { got[k] = o[k]; okSrc[k] = (o._src && o._src[k]) || s.name; }
+      for (const k of ['usd', 'eur', 'usdt']) if (o[k] > 0 && !got[k]) { got[k] = o[k]; okSrc[k] = (o._src && o._src[k]) || s.name; }
       if (o._at && !repoAt) repoAt = o._at;
     } catch (e) {}
   }));
@@ -305,109 +341,180 @@ async function fetchRates(silent) {
     const missing = ['usd', 'eur', 'usdt'].filter(k => !got[k]);
     $('status').textContent = missing.length ? 'Sin datos para: ' + missing.map(k => k.toUpperCase()).join(', ') + '. Edítalos a mano.' : '';
   } else if (!silent) {
-    $('status').textContent = 'No se pudo conectar a las fuentes. Escribe las tasas a mano (se guardan).';
+    $('status').textContent = 'No se pudo conectar. Escribe las tasas a mano (se guardan).';
   }
   btn.disabled = false;
 }
 
-/* ---------- converter ---------- */
-const CONV = { bs: 1, usd: () => S.usd, eur: () => S.eur, usdt: () => S.usdt };
-const toBs = (v, cur) => cur === 'bs' ? v : v * CONV[cur]();
-const fromBs = (bs, cur) => cur === 'bs' ? bs : bs / CONV[cur]();
+/* ---------- Convertir ---------- */
 let convSrc = 'usd';
-
-function onConvInput(e) {
-  convSrc = e.target.dataset.cur; recalcConv();
-}
 function recalcConv() {
   const srcEl = $('c-' + convSrc);
   const bs = toBs(num(srcEl.value), convSrc);
-  for (const cur of ['bs', 'usd', 'eur', 'usdt']) {
-    const el = $('c-' + cur); el.classList.toggle('src', cur === convSrc);
-    if (cur !== convSrc) el.value = srcEl.value === '' ? '' : fmtIn(fromBs(bs, cur));
+  for (const c of ['bs', 'usd', 'eur', 'usdt']) {
+    const el = $('c-' + c); el.classList.toggle('src', c === convSrc);
+    if (c !== convSrc) el.value = srcEl.value.trim() === '' ? '' : fmtIn(fromBs(bs, c));
   }
-  const d = $('conv-diff');
   const gap = (S.usdt / S.usd - 1) * 100;
-  d.innerHTML = `USDT vs $ BCV: la brecha es de <b>${fmt(gap, 1)}%</b>. ` +
-    (bs > 0 ? `Esos <b>${fmt(bs)} Bs</b> te cuestan <b>${fmt(bs / S.usdt)} USDT</b> si vendes USDT en P2P, contra <b>${fmt(bs / S.usd)} $</b> a tasa BCV.` :
-      'Escribe una cantidad en cualquier campo; los demás se calculan solos.');
+  $('conv-diff').innerHTML = `USDT vs $ BCV: la brecha hoy es <b>${fmt(gap, 1)}%</b>. ` +
+    (bs > 0 ? `Esos <b>${fmt(bs)} Bs</b> te cuestan <b>${fmt(bs / S.usdt)} USDT</b> vendiendo en P2P, contra <b>${fmt(bs / S.usd)} $</b> a tasa BCV. Diferencia: <b>${fmt(bs / S.usd - bs / S.usdt)} $</b> a tu favor por pagar en Bs.`
+      : 'Escribe una cantidad en cualquier campo; los demás se calculan solos.');
 }
-function clearConv() { for (const c of ['bs', 'usd', 'eur', 'usdt']) $('c-' + c).value = ''; recalcConv(); $('c-bs').focus(); }
+function resetConv() { for (const c of ['bs', 'usd', 'eur', 'usdt']) $('c-' + c).value = ''; convSrc = 'usd'; $('c-usd').value = '1'; recalcConv(); $('c-usd').focus(); }
 
-/* ---------- payment ---------- */
+/* ---------- ¿Cómo pago? ---------- */
 let paySrc = 'usd';
-function onPayInput(e) { paySrc = e.target.dataset.cur; recalcPay(); }
-
+function payOptions() {
+  const srcEl = $('p-' + paySrc); const raw = num(srcEl.value);
+  const priceUsd = paySrc === 'usd' ? raw : raw / S.usd; const priceBs = priceUsd * S.usd;
+  const disc = num($('p-disc').value) / 100, igtf = num($('p-igtf').value) / 100;
+  const disc2 = num($('p-disc2').value) / 100, igtf2 = $('p-igtf2').checked ? igtf : 0, spread = S.spread / 100;
+  const opts = [
+    { key: 'bs', name: 'Pagar en Bs', how: 'pago móvil, punto o transferencia', payAmt: priceBs, payCur: 'Bs', usdt: priceBs / S.usdt,
+      lines: [['Precio en Bs (tasa BCV)', fmt(priceBs) + ' Bs'], ['USDT que vendes en P2P a ' + fmt(S.usdt), fmt(priceBs / S.usdt) + ' USDT'], ['IGTF', 'no aplica']] },
+    { key: 'cash', name: 'Efectivo $', how: `${fmt(disc * 100, 0)}% descuento + IGTF ${fmt(igtf * 100, 1)}%`,
+      payAmt: priceUsd * (1 - disc) * (1 + igtf), payCur: '$', usdt: priceUsd * (1 - disc) * (1 + igtf) * (1 + spread),
+      lines: [['Precio base', fmt(priceUsd) + ' $'], ['Descuento ' + fmt(disc * 100, 0) + '%', '−' + fmt(priceUsd * disc) + ' $', 'neg'],
+        ['IGTF ' + fmt(igtf * 100, 1) + '%', '+' + fmt(priceUsd * (1 - disc) * igtf) + ' $', 'pos'],
+        ...(spread ? [['Pasar USDT a efectivo ' + fmt(spread * 100, 1) + '%', '+' + fmt(priceUsd * (1 - disc) * (1 + igtf) * spread) + ' USDT', 'pos']] : [])] },
+  ];
+  if ($('p-show2').checked) opts.push({ key: 'usdt', name: 'USDT / Zelle directo', how: `${disc2 ? fmt(disc2 * 100, 0) + '% descuento' : 'sin descuento'}${igtf2 ? ' + IGTF' : ', sin IGTF'}`,
+    payAmt: priceUsd * (1 - disc2) * (1 + igtf2), payCur: 'USDT', usdt: priceUsd * (1 - disc2) * (1 + igtf2),
+    lines: [['Precio base', fmt(priceUsd) + ' $'], ...(disc2 ? [['Descuento ' + fmt(disc2 * 100, 0) + '%', '−' + fmt(priceUsd * disc2) + ' $', 'neg']] : []),
+      ['IGTF ' + (igtf2 ? fmt(igtf2 * 100, 1) + '%' : ''), igtf2 ? '+' + fmt(priceUsd * (1 - disc2) * igtf2) + ' $' : 'no aplica', igtf2 ? 'pos' : '']] });
+  return { priceUsd, priceBs, disc, igtf, spread, opts };
+}
 function recalcPay() {
   const srcEl = $('p-' + paySrc);
-  const raw = num(srcEl.value);
-  const priceUsd = paySrc === 'usd' ? raw : raw / S.usd;
-  const priceBs = priceUsd * S.usd;
-  for (const c of ['usd', 'bs']) { const el = $('p-' + c); el.classList.toggle('src', c === paySrc); }
-  if (paySrc === 'usd') $('p-bs').value = srcEl.value === '' ? '' : fmtIn(priceBs);
-  else $('p-usd').value = srcEl.value === '' ? '' : fmtIn(priceUsd);
+  const { priceUsd, priceBs, igtf, spread, opts } = payOptions();
+  for (const c of ['usd', 'bs']) $('p-' + c).classList.toggle('src', c === paySrc);
+  if (paySrc === 'usd') $('p-bs').value = srcEl.value.trim() === '' ? '' : fmtIn(priceBs); else $('p-usd').value = srcEl.value.trim() === '' ? '' : fmtIn(priceUsd);
+  if (document.activeElement !== $('p-igtf')) { S.igtf = igtf * 100; save(); }
+  $('p-box2').style.display = $('p-show2').checked ? '' : 'none';
 
-  const disc = num($('p-disc').value) / 100, igtf = num($('p-igtf').value) / 100;
-  const disc2 = num($('p-disc2').value) / 100, igtf2 = $('p-igtf2').checked ? igtf : 0;
-  const spread = S.spread / 100;
-  S.igtf = igtf * 100; save();
+  const det = $('p-detail'); const box = $('results');
+  if (!(priceUsd > 0)) { det.innerHTML = ''; box.innerHTML = ''; $('breakeven').innerHTML = ''; return; }
+  det.innerHTML = kv([['En dólares BCV', fmt(priceUsd) + ' $'], ['En bolívares', fmt(priceBs) + ' Bs'], ['En euros BCV', fmt(priceBs / S.eur) + ' €'], ['En USDT (si vendes en P2P)', fmt(priceBs / S.usdt) + ' USDT']]);
 
-  // Everything measured in USDT you'd actually spend.
-  const opts = [
-    { key: 'bs', name: 'Pagar en Bs (pago móvil / punto)',
-      usdt: priceBs / S.usdt, pay: `${fmt(priceBs)} Bs`,
-      sub: `Vendes USDT a ${fmt(S.usdt)} Bs y pagas el precio completo en bolívares. Sin IGTF.` },
-    { key: 'cash', name: `Efectivo $ con ${fmt(disc * 100, 0)}% de descuento`,
-      usdt: priceUsd * (1 - disc) * (1 + igtf) * (1 + spread), pay: `$ ${fmt(priceUsd * (1 - disc) * (1 + igtf))}`,
-      sub: `Precio − ${fmt(disc * 100, 0)}% + IGTF ${fmt(igtf * 100, 1)}%${spread ? ` + ${fmt(spread * 100, 1)}% por pasar USDT a efectivo` : ''}.` },
-  ];
-  if ($('p-show2').checked) opts.push({ key: 'usdt', name: `USDT / Zelle directo${disc2 ? ` con ${fmt(disc2 * 100, 0)}%` : ''}`,
-    usdt: priceUsd * (1 - disc2) * (1 + igtf2), pay: `${fmt(priceUsd * (1 - disc2) * (1 + igtf2))} USDT`,
-    sub: `Precio${disc2 ? ` − ${fmt(disc2 * 100, 0)}%` : ''}${igtf2 ? ` + IGTF ${fmt(igtf2 * 100, 1)}%` : ', sin IGTF'}.` });
-
-  const box = $('results');
-  if (!(priceUsd > 0)) { box.innerHTML = ''; $('breakeven').innerHTML = ''; return; }
-  const best = opts.reduce((a, b) => b.usdt < a.usdt ? b : a);
-  const worst = opts.reduce((a, b) => b.usdt > a.usdt ? b : a);
+  const best = opts.reduce((a, b) => b.usdt < a.usdt ? b : a), worst = opts.reduce((a, b) => b.usdt > a.usdt ? b : a);
   box.innerHTML = opts.map(o => {
     const d = o.usdt - best.usdt;
     const delta = o === best
-      ? `<div class="delta less">Ahorras ${fmt(worst.usdt - o.usdt)} USDT (${fmt((1 - o.usdt / worst.usdt) * 100, 1)}%) frente a la peor opción</div>`
+      ? (opts.length > 1 ? `<div class="delta less">Ahorras ${fmt(worst.usdt - o.usdt)} USDT (${fmt((1 - o.usdt / worst.usdt) * 100, 1)}%) frente a la peor opción</div>` : '')
       : `<div class="delta more">+${fmt(d)} USDT (${fmt(d / best.usdt * 100, 1)}%) más que la mejor</div>`;
     return `<div class="res ${o === best ? 'best' : ''}">
-      <div class="top"><span class="name">${o.name}</span><span class="cost">${fmt(o.usdt)} <small>USDT</small></span></div>
-      <div class="sub">Entregas: <b>${o.pay}</b>. ${o.sub}</div>${delta}</div>`;
+      <div class="top"><div><div class="name">${o.name}</div><div class="note" style="margin:2px 0 0">${o.how}</div></div><div class="cost">${fmt(o.usdt)} <small>USDT</small></div></div>
+      ${kv([...o.lines, ['Entregas en la tienda', fmt(o.payAmt) + ' ' + o.payCur, 'tot'], ['Equivale en Bs', fmt(o.payCur === 'Bs' ? o.payAmt : o.usdt * S.usdt) + ' Bs'], ['Te cuesta en USDT', fmt(o.usdt) + ' USDT']])}
+      ${delta}</div>`;
   }).join('');
-
-  // Break-even discount: cash cost == Bs cost  →  d* = 1 − (bcv/p2p)/((1+igtf)(1+spread))
   const dStar = (1 - (S.usd / S.usdt) / ((1 + igtf) * (1 + spread))) * 100;
   $('breakeven').innerHTML = dStar > 0
-    ? `Con las tasas de hoy, pagar en efectivo solo conviene si el descuento es mayor a <b>${fmt(dStar, 1)}%</b>. Por debajo de eso, paga en bolívares.`
-    : `Con las tasas de hoy, pagar en efectivo conviene incluso sin descuento (la brecha BCV–P2P es menor que el IGTF).`;
+    ? `Con las tasas de hoy, el efectivo solo conviene si el descuento es mayor a <b>${fmt(dStar, 1)}%</b>. Por debajo de eso, paga en bolívares.`
+    : `Con las tasas de hoy, el efectivo conviene incluso sin descuento (la brecha BCV–P2P es menor que el IGTF).`;
+}
+function kv(rows) { return `<div class="kv">${rows.map(([k, v, cls]) => cls === 'tot' ? `<div class="k tot">${k}</div><div class="v tot">${v}</div>` : `<div class="k">${k}</div><div class="v ${cls || ''}">${v}</div>`).join('')}</div>`; }
+function resetPay() { $('p-usd').value = ''; $('p-bs').value = ''; paySrc = 'usd'; recalcPay(); $('p-usd').focus(); }
+function syncChips() { const v = num($('p-disc').value); for (const b of $('chips').children) b.classList.toggle('on', num(b.dataset.d) === v); }
+
+/* ---------- Cambio (plan) ---------- */
+let items = store.get('tasas-plan', null) || [{ amt: '', cur: 'usd' }];
+function renderItems() {
+  $('items').innerHTML = items.map((it, i) => `<div class="item">
+    <div class="in"><input inputmode="decimal" placeholder="0" value="${it.amt}" oninput="items[${i}].amt=this.value;recalcPlan()"></div>
+    <select onchange="items[${i}].cur=this.value;recalcPlan()">${Object.keys(CUR).map(c => `<option value="${c}" ${it.cur === c ? 'selected' : ''}>${CUR[c].label}</option>`).join('')}</select>
+    <button class="x" onclick="removeItem(${i})" aria-label="Quitar">×</button></div>`).join('');
+}
+function addItem() { items.push({ amt: '', cur: items.length ? items[items.length - 1].cur : 'usd' }); renderItems(); recalcPlan(); const ins = $('items').querySelectorAll('input'); ins[ins.length - 1].focus(); }
+function removeItem(i) { items.splice(i, 1); if (!items.length) items.push({ amt: '', cur: 'usd' }); renderItems(); recalcPlan(); }
+function resetPlan() { items = [{ amt: '', cur: 'usd' }]; renderItems(); recalcPlan(); }
+function planCalc() {
+  const margin = num($('pl-margin').value) / 100, buyCash = $('pl-cash').checked, spread = S.spread / 100;
+  let bsNeeded = 0, usdtDirect = 0, cash = 0; const groups = {};
+  for (const it of items) { const a = num(it.amt); if (!(a > 0)) continue; groups[it.cur] = (groups[it.cur] || 0) + a;
+    if (it.cur === 'usdt') usdtDirect += a; else if (it.cur === 'cash') cash += a; else bsNeeded += toBs(a, it.cur); }
+  const bsWithMargin = bsNeeded * (1 + margin);
+  const usdtToSell = bsWithMargin / S.usdt;
+  const usdtForCash = buyCash ? cash * (1 + spread) : 0;
+  const total = usdtToSell + usdtDirect + usdtForCash;
+  return { margin, buyCash, bsNeeded, bsWithMargin, usdtToSell, usdtDirect, cash, usdtForCash, total, groups };
+}
+function recalcPlan() {
+  store.set('tasas-plan', items);
+  const p = planCalc(); const out = $('plan-out');
+  if (!(p.total > 0 || p.cash > 0)) { out.innerHTML = '<div class="empty">Añade lo que vas a pagar y te digo cuántos USDT necesitas cambiar.</div>'; return; }
+  const rows = [];
+  for (const c in p.groups) rows.push([CUR[c].name.charAt(0).toUpperCase() + CUR[c].name.slice(1), fmt(p.groups[c]) + ' ' + CUR[c].label]);
+  const steps = [];
+  if (p.bsNeeded > 0) steps.push(['Bolívares que necesitas', fmt(p.bsNeeded) + ' Bs'], ['Con colchón de ' + fmt(p.margin * 100, 0) + '%', fmt(p.bsWithMargin) + ' Bs'], ['Vende en P2P a ' + fmt(S.usdt), fmt(p.usdtToSell) + ' USDT', 'tot']);
+  if (p.usdtDirect > 0) steps.push(['Pagas directo en USDT', fmt(p.usdtDirect) + ' USDT']);
+  if (p.cash > 0) steps.push(p.buyCash ? ['Efectivo que compras con USDT', fmt(p.usdtForCash) + ' USDT'] : ['Efectivo que ya tienes (aparte)', fmt(p.cash) + ' $']);
+  out.innerHTML = `<h2>Necesitas</h2><div class="plan-total">${fmt(p.total)} <small>USDT</small></div>
+    <div class="note" style="margin-top:0">${p.usdtToSell > 0 ? `Vende <b>${fmt(p.usdtToSell)} USDT</b> por <b>${fmt(p.bsWithMargin)} Bs</b>` : ''}${p.usdtDirect > 0 ? `${p.usdtToSell > 0 ? ' y guarda' : 'Guarda'} <b>${fmt(p.usdtDirect)} USDT</b> para pagar directo` : ''}${p.cash > 0 && !p.buyCash ? `. Aparte llevas <b>${fmt(p.cash)} $</b> en efectivo` : ''}.</div>
+    <h2 style="margin-top:14px">Detalle</h2>${kv(rows)}<h2 style="margin-top:14px">Cálculo</h2>${kv(steps)}
+    <div class="note">Todo lo que pagarás en Bs, $ BCV o € BCV se convierte a bolívares con la tasa BCV y se cubre vendiendo USDT en P2P. Si los precios en $ de la tienda no van a tasa BCV, pon el monto directamente en Bs.</div>`;
+}
+
+/* ---------- Historial ---------- */
+let hist = store.get('tasas-hist', []);
+function saveHistory(type) {
+  let entry = { id: Date.now(), at: Date.now(), type, rates: { usd: S.usd, eur: S.eur, usdt: S.usdt } };
+  if (type === 'conv') {
+    const bs = toBs(num($('c-' + convSrc).value), convSrc); if (!(bs > 0)) return toast('No hay nada que guardar');
+    entry.data = { src: convSrc, val: num($('c-' + convSrc).value) };
+    entry.label = `${fmt(entry.data.val)} ${CUR[convSrc].label}`;
+    entry.desc = ['bs', 'usd', 'eur', 'usdt'].filter(c => c !== convSrc).map(c => fmt(fromBs(bs, c)) + ' ' + CUR[c].label).join(' · ');
+  } else if (type === 'pay') {
+    const p = payOptions(); if (!(p.priceUsd > 0)) return toast('No hay nada que guardar');
+    const best = p.opts.reduce((a, b) => b.usdt < a.usdt ? b : a);
+    entry.data = { src: paySrc, val: num($('p-' + paySrc).value), disc: num($('p-disc').value), igtf: num($('p-igtf').value), show2: $('p-show2').checked, disc2: num($('p-disc2').value), igtf2: $('p-igtf2').checked };
+    entry.label = `Compra de ${fmt(p.priceUsd)} $ (${fmt(p.priceBs)} Bs)`;
+    entry.desc = `Mejor: ${best.name} → ${fmt(best.usdt)} USDT. ` + p.opts.filter(o => o !== best).map(o => `${o.name}: ${fmt(o.usdt)} USDT`).join(' · ');
+  } else if (type === 'plan') {
+    const p = planCalc(); if (!(p.total > 0 || p.cash > 0)) return toast('No hay nada que guardar');
+    entry.data = { items: items.filter(i => num(i.amt) > 0), margin: num($('pl-margin').value), buyCash: $('pl-cash').checked };
+    entry.label = `Cambiar ${fmt(p.total)} USDT`;
+    entry.desc = Object.keys(p.groups).map(c => fmt(p.groups[c]) + ' ' + CUR[c].label).join(' + ') + (p.usdtToSell > 0 ? ` → vender ${fmt(p.usdtToSell)} USDT por ${fmt(p.bsWithMargin)} Bs` : '');
+  }
+  hist.unshift(entry); hist = hist.slice(0, 60); store.set('tasas-hist', hist); toast('Guardado en historial');
+}
+function restoreHistory(id) {
+  const e = hist.find(h => h.id === id); if (!e) return;
+  if (e.type === 'conv') { for (const c of ['bs', 'usd', 'eur', 'usdt']) $('c-' + c).value = ''; convSrc = e.data.src; $('c-' + convSrc).value = fmtIn(e.data.val); recalcConv(); showTab('conv'); }
+  if (e.type === 'pay') { paySrc = e.data.src; $('p-usd').value = ''; $('p-bs').value = ''; $('p-' + paySrc).value = fmtIn(e.data.val); $('p-disc').value = e.data.disc; $('p-igtf').value = e.data.igtf; $('p-show2').checked = e.data.show2; $('p-disc2').value = e.data.disc2; $('p-igtf2').checked = e.data.igtf2; syncChips(); recalcPay(); showTab('pay'); }
+  if (e.type === 'plan') { items = e.data.items.map(i => ({ ...i })); if (!items.length) items = [{ amt: '', cur: 'usd' }]; $('pl-margin').value = e.data.margin; $('pl-cash').checked = e.data.buyCash; renderItems(); recalcPlan(); showTab('plan'); }
+  toast('Cargado con las tasas de hoy');
+}
+function deleteHistory(id) { hist = hist.filter(h => h.id !== id); store.set('tasas-hist', hist); renderHistory(); }
+function clearHistory() { if (!confirm('¿Borrar todo el historial?')) return; hist = []; store.set('tasas-hist', hist); renderHistory(); }
+function renderHistory() {
+  const L = $('hist-list'); $('hist-actions').style.display = hist.length ? '' : 'none';
+  if (!hist.length) { L.innerHTML = '<div class="empty">Aún no hay nada guardado.<br>Usa «Guardar en historial» en cualquier pestaña.</div>'; return; }
+  const T = { conv: 'Conversión', pay: '¿Cómo pago?', plan: 'Cambio' };
+  L.innerHTML = hist.map(e => `<div class="hist">
+    <div><div class="t">${T[e.type]} · ${new Date(e.at).toLocaleString('es-VE', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })} · BCV ${fmt(e.rates.usd, 0)} / P2P ${fmt(e.rates.usdt, 0)}</div>
+      <div class="l">${e.label}</div><div class="d">${e.desc}</div></div>
+    <div class="a"><button class="btn" onclick="restoreHistory(${e.id})">Abrir</button><button class="btn ghost danger" onclick="deleteHistory(${e.id})">Borrar</button></div></div>`).join('');
 }
 
 /* ---------- tabs & wiring ---------- */
 function showTab(t) {
-  for (const k of ['conv', 'pay']) { $('tab-' + k).classList.toggle('active', k === t); $('nav-' + k).classList.toggle('on', k === t); }
-  try { localStorage.setItem('tasas-tab', t); } catch (e) {}
+  for (const k of ['conv', 'pay', 'plan', 'hist']) { $('tab-' + k).classList.toggle('active', k === t); $('nav-' + k).classList.toggle('on', k === t); }
+  if (t === 'hist') renderHistory();
+  store.set('tasas-tab', t); window.scrollTo(0, 0);
 }
-function recalcAll() { recalcConv(); recalcPay(); }
+function recalcAll() { recalcConv(); recalcPay(); recalcPlan(); }
 
-for (const c of ['bs', 'usd', 'eur', 'usdt']) $('c-' + c).addEventListener('input', onConvInput);
-for (const c of ['usd', 'bs']) $('p-' + c).addEventListener('input', onPayInput);
-for (const id of ['p-disc', 'p-igtf', 'p-disc2', 'p-igtf2', 'p-show2']) $(id).addEventListener('input', () => {
-  if (id === 'p-disc') syncChips();
-  recalcPay();
-});
-$('chips').addEventListener('click', e => {
-  const b = e.target.closest('button'); if (!b) return;
-  $('p-disc').value = b.dataset.d; syncChips(); recalcPay();
-});
-function syncChips() { const v = num($('p-disc').value); for (const b of $('chips').children) b.classList.toggle('on', num(b.dataset.d) === v); }
+for (const c of ['bs', 'usd', 'eur', 'usdt']) $('c-' + c).addEventListener('input', e => { convSrc = e.target.dataset.cur; recalcConv(); });
+for (const c of ['usd', 'bs']) $('p-' + c).addEventListener('input', e => { paySrc = e.target.dataset.cur; recalcPay(); });
+for (const id of ['p-disc', 'p-igtf', 'p-disc2', 'p-igtf2', 'p-show2']) $(id).addEventListener('input', () => { if (id === 'p-disc') syncChips(); recalcPay(); });
+$('p-igtf').addEventListener('blur', () => { S.igtf = num($('p-igtf').value); save(); });
+$('chips').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; $('p-disc').value = b.dataset.d; syncChips(); recalcPay(); });
+for (const id of ['pl-margin', 'pl-cash']) $(id).addEventListener('input', recalcPlan);
 
-renderRates();
-try { showTab(localStorage.getItem('tasas-tab') || 'conv'); } catch (e) { showTab('conv'); }
+renderRates(); renderItems();
+showTab(store.get('tasas-tab', 'conv'));
 $('c-usd').value = '1'; recalcAll();
+
 const REFRESH_MS = 10 * 60 * 1000;
 function maybeRefresh() { if (!S.checked || Date.now() - S.checked > REFRESH_MS) fetchRates(true); else renderRates(); }
 maybeRefresh();
