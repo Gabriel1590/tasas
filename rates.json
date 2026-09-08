@@ -1,15 +1,21 @@
 {
-  "updated_at": 1788899915656,
+  "updated_at": 1788900147793,
   "rates": {
     "usdt": 967.0,
-    "usdt_min": 966.6,
-    "usdt_max": 973.9
+    "usdt_min": 966.657,
+    "usdt_max": 972.15,
+    "usd": 814.6908,
+    "eur": 947.29802151
   },
   "sources": {
-    "usdt": "binance-p2p"
+    "usdt": "binance-p2p",
+    "usd": "bcv.org.ve",
+    "eur": "bcv.org.ve"
   },
-  "errors": [
-    "bcv.org.ve: bcv.org.ve: no rates found in page",
-    "pydolarve: <urlopen error [Errno -2] Name or service not known>"
-  ]
+  "errors": [],
+  "debug": {
+    "bcv_len": 151195,
+    "bcv_title": "Banco Central de Venezuela |",
+    "bcv_snippet": "dolar\" class=\"col-sm-12 col-xs-12 \"> <div class=\"field-content\"> <div class=\"row recuadrotsmc\"> <div class=\"col-sm-6 col-xs-6\"> <img src=\"/sites/default/files/dollar-04_2.png\" class=\"icono_bss_blanco1\"> <span> USD</span> </div> <div class=\"col-sm-6 col-xs-6 centrado textp\"> <strong class=\"strong-tb\">814,690800"
+  }
 }
