@@ -7,6 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Tasas">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
 <title>Tasas · ¿Cómo pago?</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230E5A3A'/%3E%3Ctext x='32' y='43' font-size='34' text-anchor='middle' fill='%23FFD84D' font-family='sans-serif' font-weight='700'%3EBs%3C/text%3E%3C/svg%3E">
 <style>
@@ -116,7 +118,7 @@
   .breakeven b{color:var(--ink)}
 
   /* Plan */
-  .item{display:grid;grid-template-columns:1fr 118px 34px;gap:8px;align-items:center;margin-bottom:8px}
+  .item{display:grid;grid-template-columns:1fr 128px 34px;gap:8px;align-items:center;margin-bottom:8px}
   .item select{border:0;background:var(--wash);border-radius:10px;padding:10px 8px;font-size:14px;width:100%;appearance:auto}
   .item .x{border:0;background:var(--wash);border-radius:50%;width:34px;height:34px;color:var(--mute);font-size:18px;line-height:1;padding:0}
   .plan-total{font-size:clamp(24px,8vw,34px);font-weight:600;color:var(--green);letter-spacing:-.02em;margin:4px 0 2px}
@@ -193,13 +195,19 @@
   <!-- ===== ¿Cómo pago? ===== -->
   <section id="tab-pay">
     <div class="card">
-      <h2>Precio del producto <button class="link" onclick="resetPay()">Limpiar</button></h2>
+      <h2>Precio marcado <button class="link" onclick="resetPay()">Limpiar</button></h2>
       <div class="grid2">
         <div class="in"><span class="lead">$</span><input id="p-usd" inputmode="decimal" placeholder="0" data-cur="usd"></div>
         <div class="in"><span class="lead">Bs</span><input id="p-bs" inputmode="decimal" placeholder="0" data-cur="bs"></div>
       </div>
-      <div class="kv" id="p-detail"></div>
-      <div class="note">El precio en $ se pasa a Bs con la tasa BCV, como lo marcan las tiendas.</div>
+      <div class="opt" style="margin-top:12px"><label>La tienda cobra los $ a</label>
+        <div class="chips" id="rate-chips" style="margin-top:4px">
+          <button data-r="usd" class="on">Tasa BCV $</button><button data-r="eur">Tasa BCV €</button><button data-r="custom">Otra tasa</button>
+        </div>
+        <div class="in" id="p-custom-box" style="display:none;margin-top:8px"><span class="lead">1 $ =</span><input id="p-custom" inputmode="decimal" placeholder="0"><span>Bs</span></div>
+      </div>
+      <div id="p-detail"></div>
+      <div class="note" id="p-rate-note"></div>
     </div>
 
     <div class="card">
@@ -275,8 +283,8 @@ const $ = id => document.getElementById(id);
 const num = v => { let s = String(v ?? '').trim(); if (s.includes(',') && s.includes('.')) s = s.replace(/\./g, '').replace(',', '.'); else s = s.replace(',', '.'); const n = parseFloat(s); return isFinite(n) ? n : 0; };
 const fmt = (n, d = 2) => (isFinite(n) ? n : 0).toLocaleString('es-VE', { minimumFractionDigits: d, maximumFractionDigits: d });
 const fmtIn = n => (Math.round(n * 100) / 100).toString();
-const CUR = { bs: { label: 'Bs', name: 'bolívares' }, usd: { label: '$ BCV', name: 'dólar BCV' }, eur: { label: '€ BCV', name: 'euro BCV' }, usdt: { label: 'USDT', name: 'USDT P2P' }, cash: { label: '$ efectivo', name: 'efectivo' } };
-const rate = c => c === 'bs' ? 1 : c === 'usd' ? S.usd : c === 'eur' ? S.eur : c === 'usdt' ? S.usdt : S.usdt; // cash valued like USDT (1:1) for planning
+const CUR = { bs: { label: 'Bs', name: 'bolívares' }, usd: { label: '$ BCV', name: 'dólar a tasa BCV $' }, usdeur: { label: '$ a tasa €', name: 'dólar a tasa BCV €' }, eur: { label: '€ BCV', name: 'euro BCV' }, usdt: { label: 'USDT', name: 'USDT P2P' }, cash: { label: '$ efectivo', name: 'efectivo' } };
+const rate = c => c === 'bs' ? 1 : c === 'usd' ? S.usd : c === 'usdeur' ? S.eur : c === 'eur' ? S.eur : S.usdt; // usdt & cash valued 1:1 for planning
 const toBs = (v, c) => v * rate(c);
 const fromBs = (bs, c) => bs / rate(c);
 function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 1600); }
@@ -363,15 +371,16 @@ function recalcConv() {
 function resetConv() { for (const c of ['bs', 'usd', 'eur', 'usdt']) $('c-' + c).value = ''; convSrc = 'usd'; $('c-usd').value = '1'; recalcConv(); $('c-usd').focus(); }
 
 /* ---------- ¿Cómo pago? ---------- */
-let paySrc = 'usd';
+let paySrc = 'usd', storeMode = 'usd';
+function storeRate() { return storeMode === 'usd' ? S.usd : storeMode === 'eur' ? S.eur : (num($('p-custom').value) || S.usd); }
 function payOptions() {
-  const srcEl = $('p-' + paySrc); const raw = num(srcEl.value);
-  const priceUsd = paySrc === 'usd' ? raw : raw / S.usd; const priceBs = priceUsd * S.usd;
+  const srcEl = $('p-' + paySrc); const raw = num(srcEl.value); const sr = storeRate();
+  const priceUsd = paySrc === 'usd' ? raw : raw / sr; const priceBs = priceUsd * sr;
   const disc = num($('p-disc').value) / 100, igtf = num($('p-igtf').value) / 100;
   const disc2 = num($('p-disc2').value) / 100, igtf2 = $('p-igtf2').checked ? igtf : 0, spread = S.spread / 100;
   const opts = [
     { key: 'bs', name: 'Pagar en Bs', how: 'pago móvil, punto o transferencia', payAmt: priceBs, payCur: 'Bs', usdt: priceBs / S.usdt,
-      lines: [['Precio en Bs (tasa BCV)', fmt(priceBs) + ' Bs'], ['USDT que vendes en P2P a ' + fmt(S.usdt), fmt(priceBs / S.usdt) + ' USDT'], ['IGTF', 'no aplica']] },
+      lines: [['Precio en Bs (' + storeLabel() + ')', fmt(priceBs) + ' Bs'], ['USDT que vendes en P2P a ' + fmt(S.usdt), fmt(priceBs / S.usdt) + ' USDT'], ['IGTF', 'no aplica']] },
     { key: 'cash', name: 'Efectivo $', how: `${fmt(disc * 100, 0)}% descuento + IGTF ${fmt(igtf * 100, 1)}%`,
       payAmt: priceUsd * (1 - disc) * (1 + igtf), payCur: '$', usdt: priceUsd * (1 - disc) * (1 + igtf) * (1 + spread),
       lines: [['Precio base', fmt(priceUsd) + ' $'], ['Descuento ' + fmt(disc * 100, 0) + '%', '−' + fmt(priceUsd * disc) + ' $', 'neg'],
@@ -382,11 +391,13 @@ function payOptions() {
     payAmt: priceUsd * (1 - disc2) * (1 + igtf2), payCur: 'USDT', usdt: priceUsd * (1 - disc2) * (1 + igtf2),
     lines: [['Precio base', fmt(priceUsd) + ' $'], ...(disc2 ? [['Descuento ' + fmt(disc2 * 100, 0) + '%', '−' + fmt(priceUsd * disc2) + ' $', 'neg']] : []),
       ['IGTF ' + (igtf2 ? fmt(igtf2 * 100, 1) + '%' : ''), igtf2 ? '+' + fmt(priceUsd * (1 - disc2) * igtf2) + ' $' : 'no aplica', igtf2 ? 'pos' : '']] });
-  return { priceUsd, priceBs, disc, igtf, spread, opts };
+  return { priceUsd, priceBs, sr, disc, igtf, spread, opts };
 }
+function storeLabel() { return storeMode === 'usd' ? 'tasa BCV $' : storeMode === 'eur' ? 'tasa BCV €' : 'tasa de la tienda'; }
+function setStoreMode(m) { storeMode = m; for (const b of $('rate-chips').children) b.classList.toggle('on', b.dataset.r === m); $('p-custom-box').style.display = m === 'custom' ? '' : 'none'; if (m === 'custom' && !num($('p-custom').value)) $('p-custom').value = fmtIn(S.usd); recalcPay(); if (m === 'custom') $('p-custom').focus(); }
 function recalcPay() {
   const srcEl = $('p-' + paySrc);
-  const { priceUsd, priceBs, igtf, spread, opts } = payOptions();
+  const { priceUsd, priceBs, sr, igtf, spread, opts } = payOptions();
   for (const c of ['usd', 'bs']) $('p-' + c).classList.toggle('src', c === paySrc);
   if (paySrc === 'usd') $('p-bs').value = srcEl.value.trim() === '' ? '' : fmtIn(priceBs); else $('p-usd').value = srcEl.value.trim() === '' ? '' : fmtIn(priceUsd);
   if (document.activeElement !== $('p-igtf')) { S.igtf = igtf * 100; save(); }
@@ -394,7 +405,12 @@ function recalcPay() {
 
   const det = $('p-detail'); const box = $('results');
   if (!(priceUsd > 0)) { det.innerHTML = ''; box.innerHTML = ''; $('breakeven').innerHTML = ''; return; }
-  det.innerHTML = kv([['En dólares BCV', fmt(priceUsd) + ' $'], ['En bolívares', fmt(priceBs) + ' Bs'], ['En euros BCV', fmt(priceBs / S.eur) + ' €'], ['En USDT (si vendes en P2P)', fmt(priceBs / S.usdt) + ' USDT']]);
+  const over = (sr / S.usd - 1) * 100;
+  det.innerHTML = kv([['Precio marcado', fmt(priceUsd) + ' $'], ['Tasa que aplica la tienda', fmt(sr) + ' Bs/$'], ['Lo que cobran en Bs', fmt(priceBs) + ' Bs', 'tot'],
+    ['Eso equivale a tasa BCV $', fmt(priceBs / S.usd) + ' $'], ['En euros BCV', fmt(priceBs / S.eur) + ' €'], ['En USDT (si vendes en P2P)', fmt(priceBs / S.usdt) + ' USDT']]);
+  $('p-rate-note').textContent = storeMode === 'usd' ? 'Cobran los $ a la tasa oficial: no hay recargo escondido.' :
+    Math.abs(over) < 0.05 ? 'Su tasa coincide con la BCV $.' :
+    `Al cobrar a ${fmt(sr)} Bs/$, el precio en Bs lleva un ${over > 0 ? 'recargo' : 'descuento'} de ${fmt(Math.abs(over), 1)}% frente a la tasa BCV $. Eso cambia qué forma de pago conviene.`;
 
   const best = opts.reduce((a, b) => b.usdt < a.usdt ? b : a), worst = opts.reduce((a, b) => b.usdt > a.usdt ? b : a);
   box.innerHTML = opts.map(o => {
@@ -407,13 +423,13 @@ function recalcPay() {
       ${kv([...o.lines, ['Entregas en la tienda', fmt(o.payAmt) + ' ' + o.payCur, 'tot'], ['Equivale en Bs', fmt(o.payCur === 'Bs' ? o.payAmt : o.usdt * S.usdt) + ' Bs'], ['Te cuesta en USDT', fmt(o.usdt) + ' USDT']])}
       ${delta}</div>`;
   }).join('');
-  const dStar = (1 - (S.usd / S.usdt) / ((1 + igtf) * (1 + spread))) * 100;
+  const dStar = (1 - (sr / S.usdt) / ((1 + igtf) * (1 + spread))) * 100;
   $('breakeven').innerHTML = dStar > 0
-    ? `Con las tasas de hoy, el efectivo solo conviene si el descuento es mayor a <b>${fmt(dStar, 1)}%</b>. Por debajo de eso, paga en bolívares.`
-    : `Con las tasas de hoy, el efectivo conviene incluso sin descuento (la brecha BCV–P2P es menor que el IGTF).`;
+    ? `En esta tienda (${storeLabel()}), el efectivo solo conviene si el descuento es mayor a <b>${fmt(dStar, 1)}%</b>. Por debajo de eso, paga en bolívares.`
+    : `En esta tienda (${storeLabel()}), el efectivo conviene incluso sin descuento: su tasa está tan cerca del P2P que la brecha no cubre el IGTF.`;
 }
 function kv(rows) { return `<div class="kv">${rows.map(([k, v, cls]) => cls === 'tot' ? `<div class="k tot">${k}</div><div class="v tot">${v}</div>` : `<div class="k">${k}</div><div class="v ${cls || ''}">${v}</div>`).join('')}</div>`; }
-function resetPay() { $('p-usd').value = ''; $('p-bs').value = ''; paySrc = 'usd'; recalcPay(); $('p-usd').focus(); }
+function resetPay() { $('p-usd').value = ''; $('p-bs').value = ''; paySrc = 'usd'; setStoreMode('usd'); $('p-usd').focus(); }
 function syncChips() { const v = num($('p-disc').value); for (const b of $('chips').children) b.classList.toggle('on', num(b.dataset.d) === v); }
 
 /* ---------- Cambio (plan) ---------- */
@@ -451,7 +467,7 @@ function recalcPlan() {
   out.innerHTML = `<h2>Necesitas</h2><div class="plan-total">${fmt(p.total)} <small>USDT</small></div>
     <div class="note" style="margin-top:0">${p.usdtToSell > 0 ? `Vende <b>${fmt(p.usdtToSell)} USDT</b> por <b>${fmt(p.bsWithMargin)} Bs</b>` : ''}${p.usdtDirect > 0 ? `${p.usdtToSell > 0 ? ' y guarda' : 'Guarda'} <b>${fmt(p.usdtDirect)} USDT</b> para pagar directo` : ''}${p.cash > 0 && !p.buyCash ? `. Aparte llevas <b>${fmt(p.cash)} $</b> en efectivo` : ''}.</div>
     <h2 style="margin-top:14px">Detalle</h2>${kv(rows)}<h2 style="margin-top:14px">Cálculo</h2>${kv(steps)}
-    <div class="note">Todo lo que pagarás en Bs, $ BCV o € BCV se convierte a bolívares con la tasa BCV y se cubre vendiendo USDT en P2P. Si los precios en $ de la tienda no van a tasa BCV, pon el monto directamente en Bs.</div>`;
+    <div class="note">Todo lo que pagarás en Bs, $ BCV, $ a tasa € o € BCV se convierte a bolívares y se cubre vendiendo USDT en P2P. Si una tienda usa su propia tasa, pon ese gasto directamente en Bs.</div>`;
 }
 
 /* ---------- Historial ---------- */
@@ -466,8 +482,8 @@ function saveHistory(type) {
   } else if (type === 'pay') {
     const p = payOptions(); if (!(p.priceUsd > 0)) return toast('No hay nada que guardar');
     const best = p.opts.reduce((a, b) => b.usdt < a.usdt ? b : a);
-    entry.data = { src: paySrc, val: num($('p-' + paySrc).value), disc: num($('p-disc').value), igtf: num($('p-igtf').value), show2: $('p-show2').checked, disc2: num($('p-disc2').value), igtf2: $('p-igtf2').checked };
-    entry.label = `Compra de ${fmt(p.priceUsd)} $ (${fmt(p.priceBs)} Bs)`;
+    entry.data = { src: paySrc, val: num($('p-' + paySrc).value), storeMode, custom: num($('p-custom').value), disc: num($('p-disc').value), igtf: num($('p-igtf').value), show2: $('p-show2').checked, disc2: num($('p-disc2').value), igtf2: $('p-igtf2').checked };
+    entry.label = `Compra de ${fmt(p.priceUsd)} $ a ${storeLabel()} (${fmt(p.priceBs)} Bs)`;
     entry.desc = `Mejor: ${best.name} → ${fmt(best.usdt)} USDT. ` + p.opts.filter(o => o !== best).map(o => `${o.name}: ${fmt(o.usdt)} USDT`).join(' · ');
   } else if (type === 'plan') {
     const p = planCalc(); if (!(p.total > 0 || p.cash > 0)) return toast('No hay nada que guardar');
@@ -480,7 +496,7 @@ function saveHistory(type) {
 function restoreHistory(id) {
   const e = hist.find(h => h.id === id); if (!e) return;
   if (e.type === 'conv') { for (const c of ['bs', 'usd', 'eur', 'usdt']) $('c-' + c).value = ''; convSrc = e.data.src; $('c-' + convSrc).value = fmtIn(e.data.val); recalcConv(); showTab('conv'); }
-  if (e.type === 'pay') { paySrc = e.data.src; $('p-usd').value = ''; $('p-bs').value = ''; $('p-' + paySrc).value = fmtIn(e.data.val); $('p-disc').value = e.data.disc; $('p-igtf').value = e.data.igtf; $('p-show2').checked = e.data.show2; $('p-disc2').value = e.data.disc2; $('p-igtf2').checked = e.data.igtf2; syncChips(); recalcPay(); showTab('pay'); }
+  if (e.type === 'pay') { paySrc = e.data.src; $('p-usd').value = ''; $('p-bs').value = ''; $('p-' + paySrc).value = fmtIn(e.data.val); $('p-custom').value = e.data.custom || ''; setStoreMode(e.data.storeMode || 'usd'); $('p-disc').value = e.data.disc; $('p-igtf').value = e.data.igtf; $('p-show2').checked = e.data.show2; $('p-disc2').value = e.data.disc2; $('p-igtf2').checked = e.data.igtf2; syncChips(); recalcPay(); showTab('pay'); }
   if (e.type === 'plan') { items = e.data.items.map(i => ({ ...i })); if (!items.length) items = [{ amt: '', cur: 'usd' }]; $('pl-margin').value = e.data.margin; $('pl-cash').checked = e.data.buyCash; renderItems(); recalcPlan(); showTab('plan'); }
   toast('Cargado con las tasas de hoy');
 }
@@ -508,6 +524,8 @@ for (const c of ['bs', 'usd', 'eur', 'usdt']) $('c-' + c).addEventListener('inpu
 for (const c of ['usd', 'bs']) $('p-' + c).addEventListener('input', e => { paySrc = e.target.dataset.cur; recalcPay(); });
 for (const id of ['p-disc', 'p-igtf', 'p-disc2', 'p-igtf2', 'p-show2']) $(id).addEventListener('input', () => { if (id === 'p-disc') syncChips(); recalcPay(); });
 $('p-igtf').addEventListener('blur', () => { S.igtf = num($('p-igtf').value); save(); });
+$('rate-chips').addEventListener('click', e => { const b = e.target.closest('button'); if (b) setStoreMode(b.dataset.r); });
+$('p-custom').addEventListener('input', recalcPay);
 $('chips').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; $('p-disc').value = b.dataset.d; syncChips(); recalcPay(); });
 for (const id of ['pl-margin', 'pl-cash']) $(id).addEventListener('input', recalcPlan);
 
@@ -521,6 +539,7 @@ maybeRefresh();
 setInterval(maybeRefresh, 60 * 1000);
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') maybeRefresh(); });
 window.addEventListener('online', () => fetchRates(true));
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./sw.js').catch(() => {});
 </script>
 </body>
 </html>
