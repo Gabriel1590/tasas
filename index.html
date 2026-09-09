@@ -273,8 +273,8 @@
 
 <script>
 /* ---------- state ---------- */
-const BANKS = { Mercantil: 'Mercantil', PagoMovil: 'Pago Móvil', Banesco: 'Banesco', Provincial: 'Provincial', BancoDeVenezuela: 'Banco de Venezuela' };
-const SHORT = { Mercantil: 'Mercantil', PagoMovil: 'P. Móvil', Banesco: 'Banesco', Provincial: 'Provincial', BancoDeVenezuela: 'BDV' };
+const BANKS = { Mercantil: 'Mercantil', PagoMovil: 'Pago Móvil', Banesco: 'Banesco', Provincial: 'Provincial (BBVA)', BancoDeVenezuela: 'Banco de Venezuela', BNC: 'BNC', Bancamiga: 'Bancamiga', BancoDelTesoro: 'Banco del Tesoro' };
+const SHORT = { Mercantil: 'Mercantil', PagoMovil: 'P. Móvil', Banesco: 'Banesco', Provincial: 'Provincial', BancoDeVenezuela: 'BDV', BNC: 'BNC', Bancamiga: 'Bancamiga', BancoDelTesoro: 'Tesoro' };
 const DEFAULTS = { auto: { usd: 815, eur: 947, usdt: 967, banks: {} }, manual: {}, src: {}, banks: ['Mercantil', 'PagoMovil'], igtf: 3, spread: 0, at: null, checked: null, onboarded: false };
 const store = { get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
 let S = Object.assign({}, DEFAULTS, store.get('tasas-v2', {}));
