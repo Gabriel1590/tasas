@@ -118,8 +118,11 @@ BANKS = {
     "Mercantil": ["Mercantil"],
     "PagoMovil": ["PagoMovil"],
     "Banesco": ["Banesco"],
-    "Provincial": ["Provincial"],
-    "BancoDeVenezuela": ["BancoDeVenezuela", "BANCODEVENEZUELA"],
+    "Provincial": ["Provincial", "BBVABank"],
+    "BancoDeVenezuela": ["BancoDeVenezuela"],
+    "BNC": ["BNCBancoNacional"],
+    "Bancamiga": ["Bancamiga"],
+    "BancoDelTesoro": ["BancoDelTesoro"],
 }
 
 
