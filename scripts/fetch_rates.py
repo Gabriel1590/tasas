@@ -112,17 +112,48 @@ def eur_usd_market():
 
 # ---------- Binance P2P ----------
 
-def binance_p2p(trade_type="SELL", rows=10):
-    """Median price of the top ads. SELL = you selling USDT for Bs (what matters when you pay in Bs)."""
+# Binance payment-method identifiers for VES. If one is wrong, rates.json -> debug.binance_methods_seen
+# lists the identifiers Binance actually returned so it can be corrected.
+BANKS = {
+    "Mercantil": ["Mercantil"],
+    "PagoMovil": ["PagoMovil"],
+    "Banesco": ["Banesco"],
+    "Provincial": ["Provincial"],
+    "BancoDeVenezuela": ["BancoDeVenezuela", "BANCODEVENEZUELA"],
+}
+
+
+def binance_ads(pay_types=None, trade_type="SELL", rows=10):
     body = json.dumps({
         "asset": "USDT", "fiat": "VES", "tradeType": trade_type, "page": 1, "rows": rows,
-        "payTypes": [], "publisherType": None,
+        "payTypes": pay_types or [], "publisherType": None,
     }).encode()
     j = json.loads(get("https://p2p.binance.com/bapi/c2c/v2/friendly/c2c/adv/search", data=body))
-    prices = [float(a["adv"]["price"]) for a in j.get("data", []) if a.get("adv", {}).get("price")]
+    return j.get("data", [])
+
+
+def binance_p2p():
+    """Median of the top sell ads (you selling USDT for Bs): overall and per bank."""
+    ads = binance_ads(rows=20)
+    prices = [float(a["adv"]["price"]) for a in ads if a.get("adv", {}).get("price")]
     if not prices:
         raise ValueError("empty ad list")
-    return {"usdt": round(statistics.median(prices), 4), "usdt_min": min(prices), "usdt_max": max(prices)}
+    seen = set()
+    for a in ads:
+        for m in a.get("adv", {}).get("tradeMethods", []) or []:
+            if m.get("identifier"):
+                seen.add(m["identifier"])
+    DEBUG["binance_methods_seen"] = sorted(seen)
+    out = {"usdt": round(statistics.median(prices[:10]), 4), "usdt_min": min(prices), "usdt_max": max(prices), "usdt_banks": {}}
+    for bank, ids in BANKS.items():
+        try:
+            bp = [float(a["adv"]["price"]) for a in binance_ads(pay_types=ids) if a.get("adv", {}).get("price")]
+            if bp:
+                out["usdt_banks"][bank] = round(statistics.median(bp), 4)
+            time.sleep(0.4)
+        except Exception as e:  # noqa: BLE001
+            DEBUG[f"binance_{bank}"] = str(e)[:120]
+    return out
 
 
 # ---------- main ----------
@@ -156,7 +187,8 @@ def main():
     rates.update(fresh)
 
     try:
-        rates.update(binance_p2p())
+        b = binance_p2p()
+        rates.update(b)
         sources["usdt"] = "binance-p2p"
     except Exception as e:  # noqa: BLE001
         errors.append(f"binance: {e}")
