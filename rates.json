@@ -1,20 +1,20 @@
 {
-  "updated_at": 1790367952152,
+  "updated_at": 1790368221494,
   "rates": {
-    "usdt": 966.3,
-    "usdt_min": 964.401,
+    "usdt": 965.05,
+    "usdt_min": 964.27,
     "usdt_max": 1000.0,
     "usd": 857.0058,
     "eur": 976.90091142,
     "usdt_banks": {
-      "Mercantil": 963.065,
-      "PagoMovil": 958.925,
-      "Banesco": 962.2,
-      "Provincial": 963.0,
-      "BancoDeVenezuela": 964.635,
+      "Mercantil": 963.205,
+      "PagoMovil": 959.625,
+      "Banesco": 962.55,
+      "Provincial": 962.9505,
+      "BancoDeVenezuela": 964.631,
       "BNC": 960.0,
-      "Bancamiga": 962.105,
-      "BancoDelTesoro": 957.2795
+      "Bancamiga": 962.258,
+      "BancoDelTesoro": 957.6125
     }
   },
   "sources": {
@@ -30,7 +30,6 @@
     "binance_methods_seen": [
       "BANK",
       "BDDT",
-      "BNCBancoNacional",
       "Bancamiga",
       "BancoDeVenezuela",
       "BancoDelTesoro",
