@@ -1,9 +1,9 @@
 {
-  "updated_at": 1790836117192,
+  "updated_at": 1790836224219,
   "rates": {
-    "usdt": 954.045,
-    "usdt_min": 952.101,
-    "usdt_max": 958.005,
+    "usdt": 954.0,
+    "usdt_min": 952.1,
+    "usdt_max": 955.0,
     "usd": 860.1753,
     "eur": 976.84087593,
     "usdt_banks": {
@@ -14,7 +14,7 @@
       "BancoDeVenezuela": 952.1505,
       "BNC": 947.825,
       "Bancamiga": 950.4285,
-      "BancoDelTesoro": 942.5505
+      "BancoDelTesoro": 943.05
     }
   },
   "sources": {
