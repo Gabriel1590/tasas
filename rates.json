@@ -1,39 +1,38 @@
 {
-  "updated_at": 1791333021155,
+  "updated_at": 1791334824613,
   "rates": {
-    "usdt": 997.055,
-    "usdt_min": 996.3,
-    "usdt_max": 998.0,
-    "usd": 872.3927,
-    "eur": 977.21940683,
+    "usdt": 997.85,
+    "usdt_min": 997.05,
+    "usdt_max": 1000.637,
+    "usd": 873.867,
+    "eur": 984.26261811,
     "usdt_banks": {
-      "Mercantil": 995.75,
-      "PagoMovil": 993.5605,
-      "Banesco": 996.075,
-      "Provincial": 995.7055,
-      "BancoDeVenezuela": 997.055,
-      "BNC": 992.6105,
-      "Bancamiga": 995.745,
-      "BancoDelTesoro": 989.6875
+      "Mercantil": 995.574,
+      "PagoMovil": 992.935,
+      "Banesco": 997.585,
+      "Provincial": 996.25,
+      "BancoDeVenezuela": 997.17,
+      "BNC": 993.2,
+      "Bancamiga": 996.005,
+      "BancoDelTesoro": 987.9
     }
   },
   "sources": {
     "usdt": "binance-p2p",
-    "usd": "dolarapi",
-    "eur": "dolarapi"
+    "usd": "bcv.org.ve",
+    "eur": "bcv.org.ve"
   },
-  "errors": [
-    "bcv.org.ve: HTTP Error 500: Internal Server Error"
-  ],
+  "errors": [],
   "debug": {
+    "bcv_len": 151134,
+    "bcv_title": "Banco Central de Venezuela |",
+    "bcv_snippet": "dolar\" class=\"col-sm-12 col-xs-12 \"> <div class=\"field-content\"> <div class=\"row recuadrotsmc\"> <div class=\"col-sm-6 col-xs-6\"> <img src=\"/sites/default/files/dollar-04_2.png\" class=\"icono_bss_blanco1\"> <span> USD</span> </div> <div class=\"col-sm-6 col-xs-6 centrado textp\"> <strong class=\"strong-tb\">873,867000",
     "binance_methods_seen": [
       "BANK",
       "BDDT",
       "Bancamiga",
       "BancoDeVenezuela",
-      "BancoDelTesoro",
-      "Banesco",
-      "Mercantil"
+      "Banesco"
     ]
   }
 }
