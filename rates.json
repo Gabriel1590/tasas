@@ -1,20 +1,20 @@
 {
-  "updated_at": 1791586824758,
+  "updated_at": 1791587432509,
   "rates": {
-    "usdt": 1016.41,
-    "usdt_min": 1015.2,
-    "usdt_max": 1017.0,
+    "usdt": 1015.975,
+    "usdt_min": 1015.13,
+    "usdt_max": 1017.001,
     "usd": 876.7976,
     "eur": 982.00454402,
     "usdt_banks": {
-      "Mercantil": 1010.475,
-      "PagoMovil": 1009.5025,
-      "Banesco": 1010.635,
-      "Provincial": 1013.4755,
-      "BancoDeVenezuela": 1016.2,
-      "BNC": 1005.65,
-      "Bancamiga": 1009.051,
-      "BancoDelTesoro": 1010.0025
+      "Mercantil": 1010.275,
+      "PagoMovil": 1007.3,
+      "Banesco": 1011.4,
+      "Provincial": 1013.376,
+      "BancoDeVenezuela": 1015.785,
+      "BNC": 1006.75,
+      "Bancamiga": 1009.31,
+      "BancoDelTesoro": 1012.0595
     }
   },
   "sources": {
@@ -29,7 +29,6 @@
     "bcv_snippet": "dolar\" class=\"col-sm-12 col-xs-12 \"> <div class=\"field-content\"> <div class=\"row recuadrotsmc\"> <div class=\"col-sm-6 col-xs-6\"> <img src=\"/sites/default/files/dollar-04_2.png\" class=\"icono_bss_blanco1\"> <span> USD</span> </div> <div class=\"col-sm-6 col-xs-6 centrado textp\"> <strong class=\"strong-tb\">876,797600",
     "binance_methods_seen": [
       "BANK",
-      "Bancaribe",
       "BancoDeVenezuela",
       "BancoDelTesoro",
       "BancoPlaza",
