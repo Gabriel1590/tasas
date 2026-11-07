@@ -1,20 +1,20 @@
 {
-  "updated_at": 1794042694083,
+  "updated_at": 1794043820567,
   "rates": {
-    "usdt": 1024.56,
-    "usdt_min": 1021.691,
-    "usdt_max": 1025.1,
+    "usdt": 1024.8205,
+    "usdt_min": 1021.69,
+    "usdt_max": 1025.0,
     "usd": 897.5383,
     "eur": 1001.18602288,
     "usdt_banks": {
-      "Mercantil": 1019.178,
-      "PagoMovil": 1015.5725,
-      "Banesco": 1018.7505,
-      "Provincial": 1015.0,
-      "BancoDeVenezuela": 1024.245,
-      "BNC": 1015.15,
-      "Bancamiga": 1015.86,
-      "BancoDelTesoro": 1013.65
+      "Mercantil": 1017.5,
+      "PagoMovil": 1016.0255,
+      "Banesco": 1018.5015,
+      "Provincial": 1015.055,
+      "BancoDeVenezuela": 1024.56,
+      "BNC": 1014.85,
+      "Bancamiga": 1015.775,
+      "BancoDelTesoro": 1012.68
     }
   },
   "sources": {
