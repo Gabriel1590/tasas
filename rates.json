@@ -1,20 +1,20 @@
 {
-  "updated_at": 1795055424988,
+  "updated_at": 1795057224584,
   "rates": {
-    "usdt": 1075.105,
-    "usdt_min": 1073.2,
-    "usdt_max": 1080.001,
+    "usdt": 1073.275,
+    "usdt_min": 1072.304,
+    "usdt_max": 1080.0,
     "usd": 917.7751,
     "eur": 1007.39583851,
     "usdt_banks": {
-      "Mercantil": 1072.44,
-      "PagoMovil": 1069.95,
-      "Banesco": 1073.25,
-      "Provincial": 1073.1005,
-      "BancoDeVenezuela": 1071.78,
-      "BNC": 1072.755,
-      "Bancamiga": 1070.35,
-      "BancoDelTesoro": 1061.5025
+      "Mercantil": 1071.353,
+      "PagoMovil": 1069.75,
+      "Banesco": 1072.7045,
+      "Provincial": 1067.501,
+      "BancoDeVenezuela": 1071.0,
+      "BNC": 1072.05,
+      "Bancamiga": 1070.7505,
+      "BancoDelTesoro": 1064.1
     }
   },
   "sources": {
@@ -24,20 +24,18 @@
   },
   "errors": [],
   "debug": {
-    "bcv_len": 157260,
+    "bcv_len": 157174,
     "bcv_title": "Banco Central de Venezuela |",
     "bcv_snippet": "dolar\" class=\"col-sm-12 col-xs-12 \"> <div class=\"field-content\" > <div class=\"row recuadrotsmc\"> <div class=\"col-sm-6 col-xs-6\"> <img src=\"/sites/default/files/dollar-04_2.png\" class=\"icono_bss_blanco1\" style=\"margin-left: 10px;\"> <span style=\"display: inline; margin-left: 15px;\"> USD</span> </div> <div class=",
     "binance_methods_seen": [
-      "BBVABank",
-      "BDDT",
+      "BANK",
       "BNCBancoNacional",
       "Bancamiga",
       "BancoDeVenezuela",
       "Banesco",
       "Mercantil",
       "PagoMovil",
-      "Provincial",
-      "RecargaPines"
+      "Provincial"
     ]
   }
 }
